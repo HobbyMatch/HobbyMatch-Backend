@@ -53,3 +53,7 @@ out/
 # Vim swap files
 *.swp
 *.swo
+
+# Environment file
+.env
+test.env
