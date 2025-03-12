@@ -1,0 +1,87 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - '**'  # Runs on push to any branch
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      db:
+        image: mcr.microsoft.com/azure-sql-edge
+        ports:
+          - 1433:1433
+        env:
+          ACCEPT_EULA: Y
+          SA_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          MSSQL_PID: Developer
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Build with Gradle
+        run: ./gradlew build
+
+      - name: Run tests
+        run: ./gradlew test
+        env:
+          DB_USERNAME: sa
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/main'  # Only deploys on push to main
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository }}/hobbymatch-backend:latest
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID }}
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: hobbymatchbackend-fee7bkbua6hgg7f0
+          images: ghcr.io/${{ github.repository }}/hobbymatch-backend:latest
+
+      - name: Configure Azure SQL connection
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            az webapp config appsettings set --name hobbymatchbackend-fee7bkbua6hgg7f0 --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+              --settings \
+              DB_USERNAME=${{ secrets.AZURE_SQL_USERNAME }} \
+              DB_PASSWORD=${{ secrets.AZURE_SQL_PASSWORD }} \
+              JWT_SECRET=${{ secrets.JWT_SECRET }} \
+              SPRING_DATASOURCE_URL=${{ secrets.AZURE_SQL_CONNECTION_STRING }}
