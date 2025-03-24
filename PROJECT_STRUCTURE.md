@@ -4,7 +4,11 @@ This document explains the structure of the project, detailing which parts of th
 
 ## Source Code
 
-The source code is organized under the `src/main/kotlin` directory. Here is a breakdown of the main directories and their purposes:
+The source code is organized under the `src/main/kotlin` directory. In this directory there are another directories breaking down our project structure by functionalities:
+- **`infrastructure`**: Contains all the necessary classes concerning the whole project, such as database structure.
+- **`user`**: Contains all the functionalities that are mainly connected to the user. 
+
+Here is a breakdown of the directories structure inside each bigger section and their purposes:
 
 - **`controller`**: Contains the REST controllers that handle HTTP requests and responses.
     - Example: `HelloController.kt`
