@@ -56,6 +56,9 @@ tasks.register<Copy>("copyPreCommitHook") {
     outputs.upToDateWhen { false }
     from("$rootDir/scripts/pre-commit")
     into("$rootDir/.git/hooks/")
+    doLast {
+        file("$rootDir/.git/hooks/pre-commit").setExecutable(true)
+    }
 }
 
 tasks.build {
