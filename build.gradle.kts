@@ -5,7 +5,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7"
     kotlin("plugin.jpa") version "1.9.25"
     id("org.jlleitschuh.gradle.ktlint") version "12.2.0"
-    id("io.gitlab.arturbosch.detekt") version "1.23.0"
+    id("io.gitlab.arturbosch.detekt") version "1.23.8"
 }
 
 group = "com.github.KKKUBAKKK"
@@ -33,8 +33,6 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.0")
-    detektPlugins("io.gitlab.arturbosch.detekt:detekt-cli:1.23.0")
 }
 
 kotlin {
