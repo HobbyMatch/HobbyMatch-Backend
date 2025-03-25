@@ -53,6 +53,13 @@ This will start the backend service along with a SQL Server database.
 ```
 Ensure that Microsoft SQL Server is running and accessible with your credentials.
 
+## Working with the project
+When working with the projects you should use the pre-commit git hooks set up for it. To do so, after cloning the project, run the following command:
+```sh
+./gradlew copyPreCommitHook
+```
+This will copy the pre-commit hook to the `.git/hooks` directory. From now on, every time you commit changes, the hook will run the ktlint and the detekt checks. If any of them fail, the commit will be aborted. You just need to run this command once.
+
 ## API Endpoints
 \*Not implemented yet\*
 
