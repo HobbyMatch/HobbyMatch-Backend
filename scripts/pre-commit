@@ -5,13 +5,18 @@ echo "Running git pre-commit hook"
 ./gradlew ktlintCheck
 ktlintCheckStatus=$?
 
+# return 1 if any check fails
+if [[ $ktlintCheckStatus -ne 0 ]]; then
+    echo "Code style violations or code issues found by ktlint. Please fix them before committing."
+    exit 1
+fi
+
 ./gradlew detekt
 detektStatus=$?
 
-# return 1 if any check fails
-if [[ $ktlintCheckStatus -ne 0 || $detektStatus -ne 0 ]]; then
-    echo "Code style violations or code issues found. Please fix them before committing."
+if [[ $detektStatus -ne 0 ]]; then
+    echo "Code style violations or code issues found by detekt. Please fix them before committing."
     exit 1
-else
+else 
     exit 0
 fi
