@@ -9,8 +9,6 @@ class HelloController {
     fun hello(): String = HELLO
 
     companion object {
-        private const val HELLO =
-
-            "Hello, world!"
+        private const val HELLO = "Hello, world!"
     }
 }
