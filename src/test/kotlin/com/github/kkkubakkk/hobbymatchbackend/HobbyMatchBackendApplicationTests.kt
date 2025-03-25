@@ -17,7 +17,8 @@ class HobbyMatchBackendApplicationTests {
 
     @Test
     fun `should return Hello, world! on GET request to hello endpoint`() {
-        mockMvc.perform(get("/hello"))
+        mockMvc
+            .perform(get("/hello"))
             .andExpect(status().isOk)
             .andExpect(content().string("Hello, world!"))
     }
