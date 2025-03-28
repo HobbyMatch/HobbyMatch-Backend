@@ -7,6 +7,9 @@ COPY gradle gradle
 COPY build.gradle.kts .
 COPY settings.gradle.kts .
 
+# Copy detekt configuration
+COPY config config
+
 # Make gradlew executable
 RUN chmod +x gradlew
 
