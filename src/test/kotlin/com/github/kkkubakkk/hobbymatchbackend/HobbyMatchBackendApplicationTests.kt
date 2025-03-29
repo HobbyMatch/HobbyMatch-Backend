@@ -22,10 +22,12 @@ import org.testcontainers.junit.jupiter.Testcontainers
 class HobbyMatchBackendApplicationTests {
     companion object {
         @Container
-        val sqlServer = MSSQLServerContainer<Nothing>("mcr.microsoft.com/mssql/server:2019-latest").apply {
-            withPassword("A_Str0ng_Password!")
-            withEnv("ACCEPT_EULA", "Y")
-        }
+        val sqlServer =
+            MSSQLServerContainer<Nothing>("mcr.microsoft.com/mssql/server:2019-latest")
+                .apply {
+                    withPassword("A_Str0ng_Password!")
+                    withEnv("ACCEPT_EULA", "Y")
+                }
 
         @JvmStatic
         @DynamicPropertySource
