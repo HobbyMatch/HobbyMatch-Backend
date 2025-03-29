@@ -37,6 +37,38 @@ class UserService(
         return userOptional.get().toDTO()
     }
 
+    fun findOrCreateOAuthUser(
+        email: String,
+        firstName: String,
+        lastName: String,
+    ): User {
+        val userOptional = userRepository.findByEmail(email)
+
+        if (userOptional.isPresent) {
+            return userOptional.get()
+        }
+
+        // Generate a unique username based on email
+        val baseUsername = email.substringBefore("@")
+        var username = baseUsername
+        var counter = 1
+
+        while (userRepository.findByUsername(username).isPresent) {
+            username = "$baseUsername$counter"
+            counter++
+        }
+
+        val user =
+            User(
+                firstName = firstName,
+                lastName = lastName,
+                username = username,
+                email = email,
+            )
+
+        return userRepository.save(user)
+    }
+
     fun getUserByEmail(email: String): UserDTO {
         val userOptional = userRepository.findByEmail(email)
         require(userOptional.isPresent) { "User not found" }
@@ -49,6 +81,8 @@ class UserService(
         return userOptional.get().toDTO()
     }
 
+    // TODO: Change all services to not require id to find the user,
+    //  but rather use email OR accept that front has to know all the ids
     fun updateUser(
         id: Long,
         updateUserDTO: UpdateUserDTO,
