@@ -22,6 +22,6 @@ data class User(
     val username: String,
     @Column(name = "email", nullable = false, unique = true, columnDefinition = "VARCHAR(320)")
     val email: String,
-    @Column(name = "passwordHash", nullable = false)
-    val passwordHash: String,
+//    @Column(name = "passwordHash", nullable = false)
+//    val passwordHash: String,
 )
