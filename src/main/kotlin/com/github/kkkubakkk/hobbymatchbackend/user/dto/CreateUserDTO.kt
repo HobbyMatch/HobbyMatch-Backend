@@ -5,4 +5,7 @@ data class CreateUserDTO(
     val lastName: String,
     val username: String,
     val email: String,
+    val birthday: String,
+    val bio: String?,
+    val hobbiesId: List<Long>,
 )
