@@ -23,8 +23,8 @@ class UserService(
         val existingUser = userRepository.findByEmail(createUserDTO.email)
         require(!existingUser.isPresent) { "User with this email already exists" }
 
-        val hobbies = hobbyRepository.findAllById(createUserDTO.hobbiesId)
-        require(hobbies.size == createUserDTO.hobbiesId.size) { "Some specified hobbies do not exist" }
+        val hobbies = hobbyRepository.findAllByNameIn(createUserDTO.hobbies.map { it.name })
+        require(hobbies.size == createUserDTO.hobbies.size) { "Some specified hobbies do not exist" }
 
         val user =
             User(
@@ -74,8 +74,8 @@ class UserService(
         require(userOptional.isPresent) { "User not found" }
         val user = userOptional.get()
 
-        val newHobbies = hobbyRepository.findAllById(updateUserDTO.hobbiesId)
-        require(newHobbies.size == updateUserDTO.hobbiesId.size) { "Some specified hobbies do not exist" }
+        val newHobbies = hobbyRepository.findAllByNameIn(updateUserDTO.hobbies.map { it.name })
+        require(newHobbies.size == updateUserDTO.hobbies.size) { "Some specified hobbies do not exist" }
 
         updateHobbies(user, newHobbies)
 
@@ -97,8 +97,8 @@ class UserService(
         require(userOptional.isPresent) { "User not found" }
         val user = userOptional.get()
 
-        val newHobbies = hobbyRepository.findAllById(userDTO.hobbiesId)
-        require(newHobbies.size == userDTO.hobbiesId.size) { "Some specified hobbies do not exist" }
+        val newHobbies = hobbyRepository.findAllByNameIn(userDTO.hobbies.map { it.name })
+        require(newHobbies.size == userDTO.hobbies.size) { "Some specified hobbies do not exist" }
 
         updateHobbies(user, newHobbies)
 
@@ -112,7 +112,7 @@ class UserService(
         return user.toDTO()
     }
 
-    fun updateHobbies(
+    private fun updateHobbies(
         user: User,
         newHobbies: List<Hobby>,
     ) {
