@@ -1,4 +1,26 @@
 services:
+  db:
+    image: mcr.microsoft.com/azure-sql-edge:latest
+    platform: linux/amd64
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${DB_PASSWORD}
+      - MSSQL_PID=Developer
+      - MSSQL_TCP_PORT=1433
+      - MSSQL_AGENT_ENABLED=false
+      - MSSQL_RPC_PORT=1431
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+      - ./mssql.conf:/var/opt/mssql/mssql.conf
+    healthcheck:
+      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "${DB_PASSWORD}" -Q "SELECT 1" || exit 1
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
   backend:
     build: .
     ports:
@@ -8,18 +30,8 @@ services:
     env_file:
       - .env
     depends_on:
-      - db
-  
-  db:
-    image: mcr.microsoft.com/azure-sql-edge
-    environment:
-      - ACCEPT_EULA=Y
-      - SA_PASSWORD=${DB_PASSWORD}
-      - MSSQL_PID=Developer
-    ports:
-      - "1433:1433"
-    volumes:
-      - mssql_data:/var/opt/mssql
+      db:
+        condition: service_healthy
 
 volumes:
   mssql_data:
