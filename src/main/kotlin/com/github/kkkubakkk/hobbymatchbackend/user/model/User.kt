@@ -1,12 +1,17 @@
 package com.github.kkkubakkk.hobbymatchbackend.user.model
 
+import com.github.kkkubakkk.hobbymatchbackend.hobby.model.Hobby
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.JoinTable
+import jakarta.persistence.ManyToMany
 import jakarta.persistence.Table
 import org.hibernate.proxy.HibernateProxy
+import java.time.LocalDate
 
 @Entity
 @Table(name = "users")
@@ -23,6 +28,17 @@ data class User(
     var username: String,
     @Column(name = "email", nullable = false, unique = true, columnDefinition = "VARCHAR(320)")
     var email: String,
+    @ManyToMany
+    @JoinTable(
+        name = "users_hobbies",
+        joinColumns = [JoinColumn(name = "user_id", referencedColumnName = "id")],
+        inverseJoinColumns = [JoinColumn(name = "hobby_id", referencedColumnName = "id")],
+    )
+    var hobbies: MutableSet<Hobby> = mutableSetOf(),
+    @Column(name = "birthday", nullable = false, updatable = false, columnDefinition = "DATE")
+    val birthday: LocalDate,
+    @Column(name = "bio", nullable = true, columnDefinition = "NVARCHAR(MAX)")
+    var bio: String? = null,
 ) {
     final override fun equals(other: Any?): Boolean {
         if (this === other) return true

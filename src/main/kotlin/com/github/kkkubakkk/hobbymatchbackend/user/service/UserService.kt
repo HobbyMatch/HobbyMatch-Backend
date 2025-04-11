@@ -1,5 +1,7 @@
 package com.github.kkkubakkk.hobbymatchbackend.user.service
 
+import com.github.kkkubakkk.hobbymatchbackend.hobby.model.Hobby
+import com.github.kkkubakkk.hobbymatchbackend.hobby.repository.HobbyRepository
 import com.github.kkkubakkk.hobbymatchbackend.user.dto.CreateUserDTO
 import com.github.kkkubakkk.hobbymatchbackend.user.dto.EmailUpdateDTO
 import com.github.kkkubakkk.hobbymatchbackend.user.dto.SearchUserDTO
@@ -9,14 +11,20 @@ import com.github.kkkubakkk.hobbymatchbackend.user.dto.toDTO
 import com.github.kkkubakkk.hobbymatchbackend.user.model.User
 import com.github.kkkubakkk.hobbymatchbackend.user.repository.UserRepository
 import org.springframework.stereotype.Service
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @Service
 class UserService(
     private val userRepository: UserRepository,
+    private val hobbyRepository: HobbyRepository,
 ) {
     fun createUser(createUserDTO: CreateUserDTO): UserDTO {
         val existingUser = userRepository.findByEmail(createUserDTO.email)
         require(!existingUser.isPresent) { "User with this email already exists" }
+
+        val hobbies = hobbyRepository.findAllByNameIn(createUserDTO.hobbies.map { it.name })
+        require(hobbies.size == createUserDTO.hobbies.size) { "Some specified hobbies do not exist" }
 
         val user =
             User(
@@ -24,8 +32,17 @@ class UserService(
                 lastName = createUserDTO.lastName,
                 username = createUserDTO.username,
                 email = createUserDTO.email,
+                hobbies = hobbies.toMutableSet(),
+                birthday = LocalDate.parse(createUserDTO.birthday, DateTimeFormatter.ISO_LOCAL_DATE),
+                bio = createUserDTO.bio,
             )
+
+        for (hobby in hobbies) {
+            hobby.users.add(user)
+        }
+
         userRepository.save(user)
+
         return user.toDTO()
     }
 
@@ -57,9 +74,16 @@ class UserService(
         require(userOptional.isPresent) { "User not found" }
         val user = userOptional.get()
 
+        val newHobbies = hobbyRepository.findAllByNameIn(updateUserDTO.hobbies.map { it.name })
+        require(newHobbies.size == updateUserDTO.hobbies.size) { "Some specified hobbies do not exist" }
+
+        updateHobbies(user, newHobbies)
+
         user.firstName = updateUserDTO.firstName
         user.lastName = updateUserDTO.lastName
         user.username = updateUserDTO.username
+        user.hobbies = newHobbies.toMutableSet()
+        user.bio = updateUserDTO.bio
 
         userRepository.save(user)
         return user.toDTO()
@@ -73,12 +97,34 @@ class UserService(
         require(userOptional.isPresent) { "User not found" }
         val user = userOptional.get()
 
+        val newHobbies = hobbyRepository.findAllByNameIn(userDTO.hobbies.map { it.name })
+        require(newHobbies.size == userDTO.hobbies.size) { "Some specified hobbies do not exist" }
+
+        updateHobbies(user, newHobbies)
+
         user.firstName = userDTO.firstName
         user.lastName = userDTO.lastName
         user.username = userDTO.username
+        user.hobbies = newHobbies.toMutableSet()
+        user.bio = userDTO.bio
 
         userRepository.save(user)
         return user.toDTO()
+    }
+
+    private fun updateHobbies(
+        user: User,
+        newHobbies: List<Hobby>,
+    ) {
+        val hobbiesToRemove = user.hobbies.filter { it !in newHobbies }
+        hobbiesToRemove.forEach { hobby ->
+            hobby.users.remove(user)
+        }
+
+        val hobbiesToAdd = newHobbies.filter { it !in user.hobbies }
+        hobbiesToAdd.forEach { hobby ->
+            hobby.users.add(user)
+        }
     }
 
     fun updateUserEmail(
