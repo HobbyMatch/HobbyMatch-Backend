@@ -1,14 +1,18 @@
 package com.github.kkkubakkk.hobbymatchbackend.user.model
 
+import com.github.kkkubakkk.hobbymatchbackend.activity.model.Activity
 import com.github.kkkubakkk.hobbymatchbackend.hobby.model.Hobby
+import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.JoinTable
 import jakarta.persistence.ManyToMany
+import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
 import org.hibernate.proxy.HibernateProxy
 import java.time.LocalDate
@@ -28,7 +32,7 @@ data class User(
     var username: String,
     @Column(name = "email", nullable = false, unique = true, columnDefinition = "VARCHAR(320)")
     var email: String,
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "users_hobbies",
         joinColumns = [JoinColumn(name = "user_id", referencedColumnName = "id")],
@@ -37,8 +41,17 @@ data class User(
     var hobbies: MutableSet<Hobby> = mutableSetOf(),
     @Column(name = "birthday", nullable = false, updatable = false, columnDefinition = "DATE")
     val birthday: LocalDate,
-    @Column(name = "bio", nullable = true, columnDefinition = "NVARCHAR(MAX)")
+    @Column(name = "bio", nullable = true, columnDefinition = "NVARCHAR(1000)")
     var bio: String? = null,
+    @OneToMany(
+        mappedBy = "organizer",
+        cascade = [CascadeType.ALL],
+        orphanRemoval = true,
+        fetch = FetchType.LAZY,
+    )
+    var organizedActivities: MutableSet<Activity> = mutableSetOf(),
+    @ManyToMany(mappedBy = "participants")
+    var participatedActivities: MutableSet<Activity> = mutableSetOf(),
 ) {
     final override fun equals(other: Any?): Boolean {
         if (this === other) return true

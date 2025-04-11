@@ -1,5 +1,6 @@
 package com.github.kkkubakkk.hobbymatchbackend.hobby.model
 
+import com.github.kkkubakkk.hobbymatchbackend.activity.model.Activity
 import com.github.kkkubakkk.hobbymatchbackend.user.model.User
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -20,4 +21,6 @@ data class Hobby(
     var name: String,
     @ManyToMany(mappedBy = "hobbies")
     var users: MutableSet<User> = mutableSetOf(),
+    @ManyToMany(mappedBy = "hobbies")
+    var activities: MutableSet<Activity> = mutableSetOf(),
 )
