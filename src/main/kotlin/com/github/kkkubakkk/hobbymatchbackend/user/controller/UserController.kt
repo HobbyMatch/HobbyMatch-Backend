@@ -28,57 +28,45 @@ class UserController(
     @PostMapping("/users")
     fun createUser(
         @RequestBody createUserDTO: CreateUserDTO,
-    ): ResponseEntity<UserDTO> {
-        return try{
+    ): ResponseEntity<UserDTO> =
+        try {
             ResponseEntity.ok(userService.createUser(createUserDTO))
-        }
-        catch(ex:IllegalArgumentException)
-        {
+        } catch (ex: IllegalArgumentException) {
             ResponseEntity.status(HttpStatus.NOT_FOUND).build()
         }
-    }
 
     @GetMapping("/users/{id}")
     fun getUserById(
         @PathVariable id: Long,
-    ): ResponseEntity<UserDTO> {
-        return try{
+    ): ResponseEntity<UserDTO> =
+        try {
             ResponseEntity.ok(userService.getUserById(id))
-        }
-        catch(ex:IllegalArgumentException )
-        {
+        } catch (ex: IllegalArgumentException) {
             // handling exception
             ResponseEntity.status(HttpStatus.NOT_FOUND).build()
         }
-    }
 
     @GetMapping("/users/email/{email}")
     fun getUserByEmail(
         @PathVariable email: String,
-    ):ResponseEntity<UserDTO> {
-        return try{
+    ): ResponseEntity<UserDTO> =
+        try {
             ResponseEntity.ok(userService.getUserByEmail(email))
-        }
-        catch(ex:IllegalArgumentException )
-        {
+        } catch (ex: IllegalArgumentException) {
             // handling exception
             ResponseEntity.status(HttpStatus.NOT_FOUND).build()
         }
-    }
 
     @GetMapping("/users/username/{username}")
     fun getUserByUsername(
         @PathVariable username: String,
-    ): ResponseEntity<UserDTO> {
-        return try{
+    ): ResponseEntity<UserDTO> =
+        try {
             ResponseEntity.ok(userService.getUserByUsername(username))
-        }
-        catch(ex:IllegalArgumentException )
-        {
+        } catch (ex: IllegalArgumentException) {
             // handling exception
             ResponseEntity.status(HttpStatus.NOT_FOUND).build()
         }
-    }
 
     @GetMapping("/users/exists/{email}")
     fun userExists(
@@ -92,46 +80,34 @@ class UserController(
     fun updateUser(
         @PathVariable id: Long,
         @RequestBody updateUserDTO: UpdateUserDTO,
-    ): ResponseEntity<UserDTO>
-    {
-        return try{
+    ): ResponseEntity<UserDTO> =
+        try {
             ResponseEntity.ok(userService.updateUser(id, updateUserDTO))
-        }
-        catch(ex:IllegalArgumentException)
-        {
+        } catch (ex: IllegalArgumentException) {
             ResponseEntity.status(HttpStatus.NOT_FOUND).build()
         }
-    }
 
     @PutMapping("/users/email/{email}")
     fun updateUserByEmail(
         @PathVariable email: String,
         @RequestBody userDTO: UserDTO,
-    ):ResponseEntity<UserDTO>
-    {
-        return try{
+    ): ResponseEntity<UserDTO> =
+        try {
             ResponseEntity.ok(userService.updateUserByEmail(email, userDTO))
-        }
-        catch(ex:IllegalArgumentException)
-        {
+        } catch (ex: IllegalArgumentException) {
             ResponseEntity.status(HttpStatus.NOT_FOUND).build()
         }
-    }
 
     @PutMapping("/users/{id}/email")
     fun updateUserEmail(
         @PathVariable id: Long,
         @RequestBody emailUpdateDTO: EmailUpdateDTO,
-    ): ResponseEntity<UserDTO>
-    {
-        return try{
-            ResponseEntity.ok( userService.updateUserEmail(id, emailUpdateDTO))
-        }
-        catch(ex:IllegalArgumentException)
-        {
+    ): ResponseEntity<UserDTO> =
+        try {
+            ResponseEntity.ok(userService.updateUserEmail(id, emailUpdateDTO))
+        } catch (ex: IllegalArgumentException) {
             ResponseEntity.status(HttpStatus.NOT_FOUND).build()
         }
-    }
 
     @DeleteMapping("/users/{id}")
     fun deleteUser(
