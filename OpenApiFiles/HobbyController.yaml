@@ -1,0 +1,30 @@
+openapi: "3.1.0"
+info:
+  title: "HobbyMatch_Backend API"
+  description: "HobbyMatch_Backend API"
+  version: "1.0.0"
+servers:
+  - url: "https://HobbyMatch_Backend"
+paths:
+  /api/hobbies:
+    get:
+      summary: "GET api/hobbies"
+      operationId: "getAllHobbies"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/HobbyDTO"
+components:
+  schemas:
+    HobbyDTO:
+      type: "object"
+      properties:
+        name:
+          type: "string"
+      required:
+        - "name"
