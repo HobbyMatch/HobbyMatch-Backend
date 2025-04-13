@@ -68,7 +68,15 @@ class AuthController(
                 // Generate JWT token
                 val token = convertUserToJwt(user)
 
-                return ResponseEntity.ok(AuthResponse(token))
+                // Return token and user info
+                val userInfo =
+                    UserInfo(
+                        firstName = user.firstName,
+                        lastName = user.lastName,
+                        email = user.email,
+                    )
+
+                return ResponseEntity.ok(AuthResponse(token, userInfo))
             }
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
         } catch (e: GeneralSecurityException) {
@@ -104,4 +112,11 @@ data class GoogleTokenRequest(
 
 data class AuthResponse(
     val token: String,
+    val user: UserInfo,
+)
+
+data class UserInfo(
+    val email: String,
+    val firstName: String,
+    val lastName: String,
 )
