@@ -1,4 +1,5 @@
 plugins {
+    groovy
     kotlin("jvm") version "2.0.21"
     kotlin("plugin.spring") version "1.9.25"
     id("org.springframework.boot") version "3.4.3"
@@ -31,9 +32,12 @@ dependencies {
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("com.h2database:h2")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+    // testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+    // Spock dependencies
+    // testImplementation("org.spockframework:spock-core:2.4-M5-groovy-4.0")
+    // testImplementation("org.spockframework:spock-spring:2.4-M5-groovy-4.0")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-
     // TestContainers
     testImplementation("org.testcontainers:testcontainers:1.19.1")
     testImplementation("org.testcontainers:junit-jupiter:1.19.1")
@@ -66,6 +70,9 @@ allOpen {
 tasks.withType<Test> {
     useJUnitPlatform()
 }
+tasks.named<Test>("test") {
+    useJUnitPlatform()
+}
 
 tasks.register<Copy>("copyPreCommitHook") {
     description = "Copy pre-commit git hook from the scripts to the .git/hooks folder."
@@ -80,4 +87,7 @@ tasks.register<Copy>("copyPreCommitHook") {
 
 tasks.build {
     dependsOn("copyPreCommitHook")
+}
+tasks.test {
+    useJUnitPlatform()
 }

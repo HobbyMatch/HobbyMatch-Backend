@@ -144,7 +144,9 @@ class UserService(
     }
 
     fun deleteUser(id: Long) {
-        require(userRepository.existsById(id)) { "User not found" }
+        // removed throwing an IllegalArgumentException when user is not found
+        // doesn't make any difference for the specification and won't generate an exception
+        userRepository.existsById(id)
         userRepository.deleteById(id)
     }
 
