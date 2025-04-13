@@ -8,4 +8,5 @@ data class UpdateUserDTO(
     val username: String,
     val hobbies: List<HobbyDTO>,
     val bio: String?,
+    val birthday: String? = null,
 )

@@ -78,7 +78,7 @@ class UserService(
 
         return userRepository.save(user)
     }
-    
+
     fun getUserByEmail(email: String): UserDTO {
         val userOptional = userRepository.findByEmail(email)
         require(userOptional.isPresent) { "User not found" }
@@ -90,7 +90,7 @@ class UserService(
         require(userOptional.isPresent) { "User not found" }
         return userOptional.get().toDTO()
     }
-    
+
     fun updateUserByEmail(
         email: String,
         updateUserDTO: UpdateUserDTO,
@@ -109,6 +109,12 @@ class UserService(
         user.username = updateUserDTO.username
         user.hobbies = newHobbies.toMutableSet()
         user.bio = updateUserDTO.bio
+        user.birthday =
+            if (updateUserDTO.birthday != null) {
+                LocalDate.parse(updateUserDTO.birthday, DateTimeFormatter.ISO_LOCAL_DATE)
+            } else {
+                null
+            }
 
         userRepository.save(user)
         return user.toDTO()
