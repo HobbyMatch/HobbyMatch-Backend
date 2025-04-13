@@ -52,6 +52,8 @@ data class User(
     var organizedActivities: MutableSet<Activity> = mutableSetOf(),
     @ManyToMany(mappedBy = "participants")
     var participatedActivities: MutableSet<Activity> = mutableSetOf(),
+    @Column(name = "is_active", nullable = false)
+    var isActive: Boolean = true,
 ) {
     final override fun equals(other: Any?): Boolean {
         if (this === other) return true

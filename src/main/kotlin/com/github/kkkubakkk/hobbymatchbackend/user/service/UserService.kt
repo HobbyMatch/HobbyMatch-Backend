@@ -3,7 +3,6 @@ package com.github.kkkubakkk.hobbymatchbackend.user.service
 import com.github.kkkubakkk.hobbymatchbackend.hobby.model.Hobby
 import com.github.kkkubakkk.hobbymatchbackend.hobby.repository.HobbyRepository
 import com.github.kkkubakkk.hobbymatchbackend.user.dto.CreateUserDTO
-import com.github.kkkubakkk.hobbymatchbackend.user.dto.EmailUpdateDTO
 import com.github.kkkubakkk.hobbymatchbackend.user.dto.SearchUserDTO
 import com.github.kkkubakkk.hobbymatchbackend.user.dto.UpdateUserDTO
 import com.github.kkkubakkk.hobbymatchbackend.user.dto.UserDTO
@@ -48,12 +47,6 @@ class UserService(
 
     fun userExists(email: String): Boolean = userRepository.findByEmail(email).isPresent
 
-    fun getUserById(id: Long): UserDTO {
-        val userOptional = userRepository.findById(id)
-        require(userOptional.isPresent) { "User not found" }
-        return userOptional.get().toDTO()
-    }
-
     fun getUserByEmail(email: String): UserDTO {
         val userOptional = userRepository.findByEmail(email)
         require(userOptional.isPresent) { "User not found" }
@@ -66,11 +59,11 @@ class UserService(
         return userOptional.get().toDTO()
     }
 
-    fun updateUser(
-        id: Long,
+    fun updateUserByEmail(
+        email: String,
         updateUserDTO: UpdateUserDTO,
     ): UserDTO {
-        val userOptional = userRepository.findById(id)
+        val userOptional = userRepository.findByEmail(email)
         require(userOptional.isPresent) { "User not found" }
         val user = userOptional.get()
 
@@ -89,27 +82,13 @@ class UserService(
         return user.toDTO()
     }
 
-    fun updateUserByEmail(
-        email: String,
-        userDTO: UserDTO,
+    fun updateUserByUsername(
+        username: String,
+        updateUserDTO: UpdateUserDTO,
     ): UserDTO {
-        val userOptional = userRepository.findByEmail(email)
+        val userOptional = userRepository.findByUsername(username)
         require(userOptional.isPresent) { "User not found" }
-        val user = userOptional.get()
-
-        val newHobbies = hobbyRepository.findAllByNameIn(userDTO.hobbies.map { it.name })
-        require(newHobbies.size == userDTO.hobbies.size) { "Some specified hobbies do not exist" }
-
-        updateHobbies(user, newHobbies)
-
-        user.firstName = userDTO.firstName
-        user.lastName = userDTO.lastName
-        user.username = userDTO.username
-        user.hobbies = newHobbies.toMutableSet()
-        user.bio = userDTO.bio
-
-        userRepository.save(user)
-        return user.toDTO()
+        return updateUserByEmail(userOptional.get().email, updateUserDTO)
     }
 
     private fun updateHobbies(
@@ -127,27 +106,24 @@ class UserService(
         }
     }
 
-    fun updateUserEmail(
-        id: Long,
-        emailUpdateDTO: EmailUpdateDTO,
-    ): UserDTO {
-        val userOptional = userRepository.findById(id)
+    fun activateUser(email: String): UserDTO {
+        val userOptional = userRepository.findByEmail(email)
         require(userOptional.isPresent) { "User not found" }
         val user = userOptional.get()
 
-        val existingEmailUser = userRepository.findByEmail(emailUpdateDTO.email)
-        require(!(existingEmailUser.isPresent && existingEmailUser.get().id != id)) { "Email already in use" }
-
-        user.email = emailUpdateDTO.email
+        user.isActive = true
         userRepository.save(user)
         return user.toDTO()
     }
 
-    fun deleteUser(id: Long) {
-        // removed throwing an IllegalArgumentException when user is not found
-        // doesn't make any difference for the specification and won't generate an exception
-        userRepository.existsById(id)
-        userRepository.deleteById(id)
+    fun deactivateUser(email: String): UserDTO {
+        val userOptional = userRepository.findByEmail(email)
+        require(userOptional.isPresent) { "User not found" }
+        val user = userOptional.get()
+
+        user.isActive = false
+        userRepository.save(user)
+        return user.toDTO()
     }
 
     fun getAllUsers(): List<UserDTO> = userRepository.findAll().map { it.toDTO() }

@@ -1,7 +1,6 @@
 package com.github.kkkubakkk.hobbymatchbackend.user.controller
 
 import com.github.kkkubakkk.hobbymatchbackend.user.dto.CreateUserDTO
-import com.github.kkkubakkk.hobbymatchbackend.user.dto.EmailUpdateDTO
 import com.github.kkkubakkk.hobbymatchbackend.user.dto.SearchUserDTO
 import com.github.kkkubakkk.hobbymatchbackend.user.dto.UpdateUserDTO
 import com.github.kkkubakkk.hobbymatchbackend.user.dto.UserDTO
@@ -10,22 +9,20 @@ import com.github.kkkubakkk.hobbymatchbackend.user.model.User
 import com.github.kkkubakkk.hobbymatchbackend.user.service.UserService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.BDDMockito.doNothing
 import org.mockito.BDDMockito.given
-import org.mockito.Mockito.verify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.http.MediaType
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper
+import java.time.LocalDate
 import kotlin.IllegalArgumentException
 
 @WebMvcTest(UserController::class)
@@ -53,6 +50,9 @@ class UserControllerTest {
                 lastName = "Doe",
                 username = "johndoe",
                 email = "john.doe@example.com",
+                birthday = LocalDate.of(1980, 1, 1),
+                bio = "Bio",
+                isActive = true,
             )
         val user2 =
             User(
@@ -61,6 +61,9 @@ class UserControllerTest {
                 lastName = "Doe",
                 username = "linndoe",
                 email = "lin.doe@example.com",
+                birthday = LocalDate.of(1980, 1, 1),
+                bio = "Bio",
+                isActive = true,
             )
         val users = listOf(user1.toDTO(), user2.toDTO())
         given(userService.getAllUsers()).willReturn(users)
@@ -93,6 +96,9 @@ class UserControllerTest {
                 lastName = lastName,
                 username = username,
                 email = email,
+                birthday = "01.01.1973",
+                bio = "Bio",
+                hobbies = listOf(),
             )
         val user =
             User(
@@ -101,6 +107,9 @@ class UserControllerTest {
                 lastName = lastName,
                 username = username,
                 email = email,
+                birthday = LocalDate.of(1980, 1, 1),
+                bio = "Bio",
+                isActive = true,
             )
         val userDTO = user.toDTO()
         given(userService.createUser(createUserDTO)).willReturn(userDTO)
@@ -122,6 +131,9 @@ class UserControllerTest {
                 lastName = "Doe",
                 username = "johndoe",
                 email = "john.doe@example.com",
+                birthday = "01.01.1973",
+                bio = "Bio",
+                hobbies = listOf(),
             )
         given(userService.createUser(createUserDTO))
             .willThrow(IllegalArgumentException("User with this email already exists"))
@@ -135,37 +147,6 @@ class UserControllerTest {
     }
 
     @Test
-    fun `get user by id`() {
-        val userId = 1L
-        val user =
-            User(
-                id = userId,
-                firstName = "John",
-                lastName = "Doe",
-                username = "johndoe",
-                email = "john.doe@example.com",
-            )
-        val userDTO = user.toDTO()
-        given(userService.getUserById(userId)).willReturn(userDTO)
-        mockMvc
-            .perform(get("/api/users/$userId"))
-            .andExpect(status().isOk)
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(content().json(objectMapper.writeValueAsString(userDTO)))
-    }
-
-    @Test
-    fun `404 status when user not found by id`() {
-        val id = 1L
-        given(userService.getUserById(id))
-            .willThrow(IllegalArgumentException("User not found"))
-
-        mockMvc
-            .perform(get("/api/users/$id"))
-            .andExpect(status().isNotFound)
-    }
-
-    @Test
     fun `get user by email`() {
         val userEmail = "john.doe@example.com"
         val user =
@@ -175,6 +156,9 @@ class UserControllerTest {
                 lastName = "Doe",
                 username = "johndoe",
                 email = userEmail,
+                birthday = LocalDate.of(1980, 1, 1),
+                bio = "Bio",
+                isActive = true,
             )
         val userDTO = user.toDTO()
         given(userService.getUserByEmail(userEmail)).willReturn(userDTO)
@@ -205,6 +189,9 @@ class UserControllerTest {
                 lastName = "Doe",
                 username = username,
                 email = "john.doe@example.com",
+                birthday = LocalDate.of(1980, 1, 1),
+                bio = "Bio",
+                isActive = true,
             )
         val userDTO = user.toDTO()
         given(userService.getUserByUsername(username)).willReturn(userDTO)
@@ -248,55 +235,16 @@ class UserControllerTest {
     }
 
     @Test
-    fun `update existing user by id`() {
-        val id = 1L
-        val updateUserDTO =
-            UpdateUserDTO(
-                firstName = "John",
-                lastName = "Doe",
-                username = "johndoe",
-            )
-        val userDTO =
-            UserDTO(
-                id = id,
-                firstName = "John",
-                lastName = "Doe",
-                username = "johndoe",
-                email = "john.doe@example.com",
-            )
-        given(userService.updateUser(id, updateUserDTO)).willReturn(userDTO)
-        mockMvc
-            .perform(
-                put("/api/users/$id")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(updateUserDTO)),
-            ).andExpect(status().isOk)
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(content().json(objectMapper.writeValueAsString(userDTO)))
-    }
-
-    @Test
-    fun `404 status for updating a non-existing user by id`() {
-        val id = 1L
-        val updateUserDTO =
-            UpdateUserDTO(
-                firstName = "John",
-                lastName = "Doe",
-                username = "johndoe",
-            )
-        given(userService.updateUser(id, updateUserDTO))
-            .willThrow(IllegalArgumentException("User not found"))
-        mockMvc
-            .perform(
-                put("/api/users/$id")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(updateUserDTO)),
-            ).andExpect(status().isNotFound)
-    }
-
-    @Test
     fun `update an existing user by email`() {
         val email = "john.doe@example.com"
+        val updateUserDTO =
+            UpdateUserDTO(
+                firstName = "John",
+                lastName = "Doe",
+                username = "johndoe",
+                bio = "Bio",
+                hobbies = listOf(),
+            )
         val userDTO =
             UserDTO(
                 id = 1L,
@@ -304,13 +252,16 @@ class UserControllerTest {
                 lastName = "Doe",
                 username = "johndoe",
                 email = email,
+                birthday = "01.01.1973",
+                bio = "Bio",
+                hobbies = listOf(),
             )
-        given(userService.updateUserByEmail(email, userDTO)).willReturn(userDTO)
+        given(userService.updateUserByEmail(email, updateUserDTO)).willReturn(userDTO)
         mockMvc
             .perform(
                 put("/api/users/email/$email")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(userDTO)),
+                    .content(objectMapper.writeValueAsString(updateUserDTO)),
             ).andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(content().json(objectMapper.writeValueAsString(userDTO)))
@@ -319,95 +270,76 @@ class UserControllerTest {
     @Test
     fun `404 status for updating a non-existing user by email`() {
         val email = "john.doe@example.com"
-        val userDTO =
-            UserDTO(
-                id = 1L,
+        val updateUserDTO =
+            UpdateUserDTO(
                 firstName = "John",
                 lastName = "Doe",
                 username = "johndoe",
-                email = email,
+                bio = "Bio",
+                hobbies = listOf(),
             )
-        given(userService.updateUserByEmail(email, userDTO))
+        given(userService.updateUserByEmail(email, updateUserDTO))
             .willThrow(IllegalArgumentException("User not found"))
         mockMvc
             .perform(
                 put("/api/users/email/$email")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(userDTO)),
+                    .content(objectMapper.writeValueAsString(updateUserDTO)),
             ).andExpect(status().isNotFound)
     }
 
     @Test
-    fun `update an existing user email by id`() {
-        val id = 1L
-        val email = "john.doe@example.com"
-        val emailUpdateDTO =
-            EmailUpdateDTO(
-                email = email,
+    fun `update an existing user by username`() {
+        val username = "johndoe"
+        val updateUserDTO =
+            UpdateUserDTO(
+                firstName = "John",
+                lastName = "Doe",
+                username = username,
+                bio = "Bio",
+                hobbies = listOf(),
             )
         val userDTO =
             UserDTO(
-                id = id,
+                id = 1L,
                 firstName = "John",
                 lastName = "Doe",
-                username = "johndoe",
-                email = email,
+                username = username,
+                email = "john.doe@example.com",
+                birthday = "01.01.1973",
+                bio = "Bio",
+                hobbies = listOf(),
             )
-        given(userService.updateUserEmail(id, emailUpdateDTO)).willReturn(userDTO)
+        given(userService.updateUserByUsername(username, updateUserDTO)).willReturn(userDTO)
         mockMvc
             .perform(
-                put("/api/users/$id/email")
+                put("/api/users/username/$username")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(emailUpdateDTO)),
+                    .content(objectMapper.writeValueAsString(updateUserDTO)),
             ).andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(content().json(objectMapper.writeValueAsString(userDTO)))
     }
 
     @Test
-    fun `404 status when updating a non-existing user email by id`() {
-        val id = 1L
-        val email = "john.doe@example.com"
-        val emailUpdateDTO =
-            EmailUpdateDTO(
-                email = email,
+    fun `404 status for updating a non-existing user by username`() {
+        val username = "johndoe"
+        val updateUserDTO =
+            UpdateUserDTO(
+                firstName = "John",
+                lastName = "Doe",
+                username = username,
+                bio = "Bio",
+                hobbies = listOf(),
             )
-        given(userService.updateUserEmail(id, emailUpdateDTO))
+        given(userService.updateUserByUsername(username, updateUserDTO))
             .willThrow(IllegalArgumentException("User not found"))
         mockMvc
             .perform(
-                put("/api/users/$id/email")
+                put("/api/users/username/$username")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(emailUpdateDTO)),
+                    .content(objectMapper.writeValueAsString(updateUserDTO)),
             ).andExpect(status().isNotFound)
-    }
-
-    @Test
-    fun `404 status when updating a user email with already existing email by id`() {
-        val id = 1L
-        val email = "john.doe@example.com"
-        val emailUpdateDTO =
-            EmailUpdateDTO(
-                email = email,
-            )
-        given(userService.updateUserEmail(id, emailUpdateDTO))
-            .willThrow(IllegalArgumentException("Email already in use"))
-        mockMvc
-            .perform(
-                put("/api/users/$id/email")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(emailUpdateDTO)),
-            ).andExpect(status().isNotFound)
-    }
-
-    @Test
-    fun `delete user by id`() {
-        val id = 1L
-        doNothing().`when`(userService).deleteUser(id)
-        mockMvc
-            .perform(delete("/api/users/$id"))
-            .andExpect(status().isNoContent)
-        verify(userService).deleteUser(id)
     }
 
     @Test
@@ -431,6 +363,9 @@ class UserControllerTest {
                     lastName = lastName,
                     username = username,
                     email = email,
+                    birthday = "01.01.1973",
+                    bio = "Bio",
+                    hobbies = listOf(),
                 ),
             )
         given(userService.searchUsers(searchUserDTO))
@@ -465,13 +400,9 @@ class UserControllerTest {
                     lastName = lastName,
                     username = username,
                     email = email,
-                ),
-                UserDTO(
-                    id = 1L,
-                    firstName = "Jane",
-                    lastName = lastName,
-                    username = username,
-                    email = email,
+                    birthday = "01.01.1973",
+                    bio = "Bio",
+                    hobbies = listOf(),
                 ),
             )
         given(userService.searchUsers(searchUserDTO))
@@ -505,13 +436,9 @@ class UserControllerTest {
                     lastName = "Travolta",
                     username = username,
                     email = email,
-                ),
-                UserDTO(
-                    id = 1L,
-                    firstName = "Jane",
-                    lastName = "Doe",
-                    username = username,
-                    email = email,
+                    birthday = "01.01.1973",
+                    bio = "Bio",
+                    hobbies = listOf(),
                 ),
             )
         given(userService.searchUsers(searchUserDTO))
@@ -544,13 +471,9 @@ class UserControllerTest {
                     lastName = "Travolta",
                     username = "johntravolta",
                     email = email,
-                ),
-                UserDTO(
-                    id = 1L,
-                    firstName = "Jane",
-                    lastName = "Doe",
-                    username = "janedoe",
-                    email = email,
+                    birthday = "01.01.1973",
+                    bio = "Bio",
+                    hobbies = listOf(),
                 ),
             )
         given(userService.searchUsers(searchUserDTO))
@@ -582,13 +505,9 @@ class UserControllerTest {
                     lastName = "Travolta",
                     username = "johntravolta",
                     email = "john.travolta@example.com",
-                ),
-                UserDTO(
-                    id = 1L,
-                    firstName = "Jane",
-                    lastName = "Doe",
-                    username = "janedoe",
-                    email = "jane.doe@example.com",
+                    birthday = "01.01.1973",
+                    bio = "Bio",
+                    hobbies = listOf(),
                 ),
             )
         given(userService.searchUsers(searchUserDTO))
@@ -601,5 +520,69 @@ class UserControllerTest {
             ).andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(content().json(objectMapper.writeValueAsString(users)))
+    }
+
+    @Test
+    fun `activate user by email`() {
+        val email = "john.doe@example.com"
+        val userDTO =
+            UserDTO(
+                id = 1L,
+                firstName = "John",
+                lastName = "Doe",
+                username = "johndoe",
+                email = email,
+                birthday = "01.01.1973",
+                bio = "Bio",
+                hobbies = listOf(),
+            )
+        given(userService.activateUser(email)).willReturn(userDTO)
+        mockMvc
+            .perform(put("/api/users/email/$email/activate"))
+            .andExpect(status().isOk)
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(content().json(objectMapper.writeValueAsString(userDTO)))
+    }
+
+    @Test
+    fun `404 status when activating non-existing user`() {
+        val email = "john.doe@example.com"
+        given(userService.activateUser(email))
+            .willThrow(IllegalArgumentException("User not found"))
+        mockMvc
+            .perform(put("/api/users/email/$email/activate"))
+            .andExpect(status().isNotFound)
+    }
+
+    @Test
+    fun `deactivate user by email`() {
+        val email = "john.doe@example.com"
+        val userDTO =
+            UserDTO(
+                id = 1L,
+                firstName = "John",
+                lastName = "Doe",
+                username = "johndoe",
+                email = email,
+                birthday = "01.01.1973",
+                bio = "Bio",
+                hobbies = listOf(),
+            )
+        given(userService.deactivateUser(email)).willReturn(userDTO)
+        mockMvc
+            .perform(put("/api/users/email/$email/deactivate"))
+            .andExpect(status().isOk)
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(content().json(objectMapper.writeValueAsString(userDTO)))
+    }
+
+    @Test
+    fun `404 status when deactivating non-existing user`() {
+        val email = "john.doe@example.com"
+        given(userService.deactivateUser(email))
+            .willThrow(IllegalArgumentException("User not found"))
+        mockMvc
+            .perform(put("/api/users/email/$email/deactivate"))
+            .andExpect(status().isNotFound)
     }
 }
