@@ -91,29 +91,6 @@ class UserService(
         return updateUserByEmail(userOptional.get().email, updateUserDTO)
     }
 
-    fun updateUserByEmail(
-        email: String,
-        userDTO: UserDTO,
-    ): UserDTO {
-        val userOptional = userRepository.findByEmail(email)
-        require(userOptional.isPresent) { "User not found" }
-        val user = userOptional.get()
-
-        val newHobbies = hobbyRepository.findAllByNameIn(userDTO.hobbies.map { it.name })
-        require(newHobbies.size == userDTO.hobbies.size) { "Some specified hobbies do not exist" }
-
-        updateHobbies(user, newHobbies)
-
-        user.firstName = userDTO.firstName
-        user.lastName = userDTO.lastName
-        user.username = userDTO.username
-        user.hobbies = newHobbies.toMutableSet()
-        user.bio = userDTO.bio
-
-        userRepository.save(user)
-        return user.toDTO()
-    }
-
     private fun updateHobbies(
         user: User,
         newHobbies: List<Hobby>,
