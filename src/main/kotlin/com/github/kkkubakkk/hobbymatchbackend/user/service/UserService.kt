@@ -47,6 +47,38 @@ class UserService(
 
     fun userExists(email: String): Boolean = userRepository.findByEmail(email).isPresent
 
+    fun findOrCreateOAuthUser(
+        email: String,
+        firstName: String,
+        lastName: String,
+    ): User {
+        val userOptional = userRepository.findByEmail(email)
+
+        if (userOptional.isPresent) {
+            return userOptional.get()
+        }
+
+        // Generate a unique username based on email
+        val baseUsername = email.substringBefore("@")
+        var username = baseUsername
+        var counter = 1
+
+        while (userRepository.findByUsername(username).isPresent) {
+            username = "$baseUsername$counter"
+            counter++
+        }
+
+        val user =
+            User(
+                firstName = firstName,
+                lastName = lastName,
+                username = username,
+                email = email,
+            )
+
+        return userRepository.save(user)
+    }
+
     fun getUserByEmail(email: String): UserDTO {
         val userOptional = userRepository.findByEmail(email)
         require(userOptional.isPresent) { "User not found" }
@@ -77,6 +109,12 @@ class UserService(
         user.username = updateUserDTO.username
         user.hobbies = newHobbies.toMutableSet()
         user.bio = updateUserDTO.bio
+        user.birthday =
+            if (updateUserDTO.birthday != null) {
+                LocalDate.parse(updateUserDTO.birthday, DateTimeFormatter.ISO_LOCAL_DATE)
+            } else {
+                null
+            }
 
         userRepository.save(user)
         return user.toDTO()

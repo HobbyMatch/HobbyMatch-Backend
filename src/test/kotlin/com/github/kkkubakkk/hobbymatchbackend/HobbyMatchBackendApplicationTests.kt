@@ -1,9 +1,11 @@
 package com.github.kkkubakkk.hobbymatchbackend
 
+import com.github.kkkubakkk.hobbymatchbackend.config.TestSecurityConfig
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
@@ -18,28 +20,26 @@ import org.testcontainers.junit.jupiter.Testcontainers
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@Import(TestSecurityConfig::class)
 @Testcontainers
 class HobbyMatchBackendApplicationTests {
+    @Autowired
+    private lateinit var mockMvc: MockMvc
+
     companion object {
         @Container
-        val sqlServer =
-            MSSQLServerContainer<Nothing>("mcr.microsoft.com/mssql/server:2019-latest")
-                .apply {
-                    withPassword("A_Str0ng_Password!")
-                    withEnv("ACCEPT_EULA", "Y")
-                }
+        val sqlServerContainer =
+            MSSQLServerContainer("mcr.microsoft.com/mssql/server:2022-latest")
+                .acceptLicense()
 
         @JvmStatic
         @DynamicPropertySource
         fun properties(registry: DynamicPropertyRegistry) {
-            registry.add("spring.datasource.url") { sqlServer.jdbcUrl }
-            registry.add("spring.datasource.username") { sqlServer.username }
-            registry.add("spring.datasource.password") { sqlServer.password }
+            registry.add("spring.datasource.url", sqlServerContainer::getJdbcUrl)
+            registry.add("spring.datasource.username", sqlServerContainer::getUsername)
+            registry.add("spring.datasource.password", sqlServerContainer::getPassword)
         }
     }
-
-    @Autowired
-    private lateinit var mockMvc: MockMvc
 
     @Test
     fun `should return Hello, world! on GET request to hello endpoint`() {

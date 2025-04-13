@@ -40,7 +40,7 @@ data class User(
     )
     var hobbies: MutableSet<Hobby> = mutableSetOf(),
     @Column(name = "birthday", nullable = false, updatable = false, columnDefinition = "DATE")
-    val birthday: LocalDate,
+    var birthday: LocalDate? = null,
     @Column(name = "bio", nullable = true, columnDefinition = "NVARCHAR(1000)")
     var bio: String? = null,
     @OneToMany(
