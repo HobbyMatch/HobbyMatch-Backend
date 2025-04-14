@@ -1,5 +1,7 @@
 package com.github.kkkubakkk.hobbymatchbackend.user.controller
 
+import com.github.kkkubakkk.hobbymatchbackend.security.component.JwtAuthenticationFilter
+import com.github.kkkubakkk.hobbymatchbackend.security.component.JwtUtils
 import com.github.kkkubakkk.hobbymatchbackend.user.dto.CreateUserDTO
 import com.github.kkkubakkk.hobbymatchbackend.user.dto.SearchUserDTO
 import com.github.kkkubakkk.hobbymatchbackend.user.dto.UpdateUserDTO
@@ -33,6 +35,12 @@ class UserControllerTest {
 
     @MockitoBean
     private lateinit var userService: UserService
+
+    @MockitoBean
+    private lateinit var jwtUtils: JwtUtils
+
+    @MockitoBean
+    private lateinit var jwtAuthenticationFilter: JwtAuthenticationFilter
 
     private lateinit var objectMapper: ObjectMapper
 
