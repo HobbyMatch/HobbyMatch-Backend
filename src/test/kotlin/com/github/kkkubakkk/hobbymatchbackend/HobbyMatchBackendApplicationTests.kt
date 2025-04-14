@@ -1,50 +1,46 @@
 package com.github.kkkubakkk.hobbymatchbackend
 
-import com.github.kkkubakkk.hobbymatchbackend.config.TestSecurityConfig
+import com.github.kkkubakkk.hobbymatchbackend.infrastructure.controller.HelloController
+import com.github.kkkubakkk.hobbymatchbackend.security.component.JwtAuthenticationFilter
+import com.github.kkkubakkk.hobbymatchbackend.security.component.JwtUtils
+import com.github.kkkubakkk.hobbymatchbackend.user.service.UserService
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.context.annotation.Import
-import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.DynamicPropertyRegistry
-import org.springframework.test.context.DynamicPropertySource
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import org.testcontainers.containers.MSSQLServerContainer
-import org.testcontainers.junit.jupiter.Container
-import org.testcontainers.junit.jupiter.Testcontainers
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@ActiveProfiles("test")
-@Import(TestSecurityConfig::class)
-@Testcontainers
+@WebMvcTest(HelloController::class)
+@AutoConfigureMockMvc(addFilters = false)
 class HobbyMatchBackendApplicationTests {
     @Autowired
     private lateinit var mockMvc: MockMvc
 
-    companion object {
-        @Container
-        val sqlServerContainer =
-            MSSQLServerContainer("mcr.microsoft.com/mssql/server:2022-latest")
-                .acceptLicense()
+    @MockitoBean
+    private lateinit var userService: UserService
 
-        @JvmStatic
-        @DynamicPropertySource
-        fun properties(registry: DynamicPropertyRegistry) {
-            registry.add("spring.datasource.url", sqlServerContainer::getJdbcUrl)
-            registry.add("spring.datasource.username", sqlServerContainer::getUsername)
-            registry.add("spring.datasource.password", sqlServerContainer::getPassword)
-        }
+    @MockitoBean
+    private lateinit var jwtUtils: JwtUtils
+
+    @MockitoBean
+    private lateinit var jwtAuthenticationFilter: JwtAuthenticationFilter
+
+    private lateinit var objectMapper: ObjectMapper
+
+    @BeforeEach
+    fun setup() {
+        objectMapper = ObjectMapper()
     }
 
     @Test
-    fun `should return Hello, world! on GET request to hello endpoint`() {
-        mockMvc
-            .perform(get("/hello"))
+    fun `test hello endpoint`() {
+        mockMvc.perform(get("/hello"))
             .andExpect(status().isOk)
             .andExpect(content().string("Hello, world!"))
     }
