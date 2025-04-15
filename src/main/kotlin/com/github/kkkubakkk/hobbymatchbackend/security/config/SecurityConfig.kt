@@ -29,6 +29,7 @@ class SecurityConfig(
                     .authenticated()
             }.oauth2Login { oauth2 ->
                 oauth2
+                    .loginPage("/auth")
                     .authorizationEndpoint { it.baseUri("/oauth2/authorize") }
                     .redirectionEndpoint { it.baseUri("/oauth2/callback/*") }
                     .successHandler(oauth2AuthenticationSuccessHandler)
