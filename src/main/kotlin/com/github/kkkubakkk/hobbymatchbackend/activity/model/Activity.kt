@@ -46,7 +46,7 @@ data class Activity(
     @Column(name = "datetime", nullable = false, columnDefinition = "DATETIME")
     var dateTime: LocalDateTime,
     @JsonManagedReference("activity-hobbies")
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "activities_hobbies",
         joinColumns = [JoinColumn(name = "activity_id")],
