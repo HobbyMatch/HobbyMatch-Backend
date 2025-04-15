@@ -22,7 +22,7 @@ class ActivityService(
 ) {
     fun createActivity(createActivityDTO: CreateActivityDTO): ActivityDTO {
         val organizer = userRepository.findByUsername(createActivityDTO.organizerUsername)
-        require(!organizer.isPresent) { "User with this username doesn't exist" }
+        require(organizer.isPresent) { "User with this username doesn't exist" }
         val hobbies = hobbyRepository.findAllByNameIn(createActivityDTO.hobbies.map { it.name })
 
         val activity =
@@ -45,6 +45,7 @@ class ActivityService(
         return activity.toDTO()
     }
 
+    @Transactional(readOnly = true)
     fun getAllActivities(): List<ActivityDTO> = activityRepository.findAll().map { it.toDTO() }
 
     @Transactional
@@ -133,9 +134,9 @@ class ActivityService(
 
     fun enrollInActivity(enrollInActivityDTO: EnrollInActivityDTO): ActivityDTO {
         val activity = activityRepository.findById(enrollInActivityDTO.activityId)
-        require(!activity.isPresent) { "Activity with this id doesn't exist" }
+        require(activity.isPresent) { "Activity with this id doesn't exist" }
         val participant = userRepository.findByUsername(enrollInActivityDTO.participantUsername)
-        require(!participant.isPresent) { "User with this username doesn't exist" }
+        require(participant.isPresent) { "User with this username doesn't exist" }
 
         activity.get().participants.add(participant.get())
         participant.get().participatedActivities.add(activity.get())
@@ -148,9 +149,9 @@ class ActivityService(
 
     fun withdrawFromActivity(enrollInActivityDTO: EnrollInActivityDTO): ActivityDTO {
         val activity = activityRepository.findById(enrollInActivityDTO.activityId)
-        require(!activity.isPresent) { "Activity with this id doesn't exist" }
+        require(activity.isPresent) { "Activity with this id doesn't exist" }
         val participant = userRepository.findByUsername(enrollInActivityDTO.participantUsername)
-        require(!participant.isPresent) { "User with this username doesn't exist" }
+        require(participant.isPresent) { "User with this username doesn't exist" }
 
         activity.get().participants.remove(participant.get())
         participant.get().participatedActivities.remove(activity.get())

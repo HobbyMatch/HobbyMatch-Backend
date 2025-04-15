@@ -1,5 +1,6 @@
 package com.github.kkkubakkk.hobbymatchbackend.user.model
 
+import com.fasterxml.jackson.annotation.JsonBackReference
 import com.github.kkkubakkk.hobbymatchbackend.activity.model.Activity
 import com.github.kkkubakkk.hobbymatchbackend.hobby.model.Hobby
 import jakarta.persistence.CascadeType
@@ -43,6 +44,7 @@ data class User(
     var birthday: LocalDate? = null,
     @Column(name = "bio", nullable = true, columnDefinition = "NVARCHAR(1000)")
     var bio: String? = null,
+    @JsonBackReference("organizer-activities")
     @OneToMany(
         mappedBy = "organizer",
         cascade = [CascadeType.ALL],
@@ -50,6 +52,7 @@ data class User(
         fetch = FetchType.LAZY,
     )
     var organizedActivities: MutableSet<Activity> = mutableSetOf(),
+    @JsonBackReference("participant-activities")
     @ManyToMany(mappedBy = "participants")
     var participatedActivities: MutableSet<Activity> = mutableSetOf(),
     @Column(name = "is_active", nullable = false)

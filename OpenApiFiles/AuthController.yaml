@@ -1,0 +1,82 @@
+openapi: "3.1.0"
+info:
+  title: "HobbyMatch_Backend API"
+  description: "HobbyMatch_Backend API"
+  version: "1.0.0"
+servers:
+  - url: "https://HobbyMatch_Backend"
+paths:
+  /auth/me:
+    get:
+      summary: "GET auth/me"
+      operationId: "getCurrentUser"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Object"
+  /auth/refresh:
+    post:
+      summary: "POST auth/refresh"
+      operationId: "refreshToken"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Object"
+  /auth/mobile/google:
+    post:
+      summary: "POST auth/mobile/google"
+      operationId: "authenticateWithGoogle"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GoogleTokenRequest"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+components:
+  schemas:
+    Object:
+      type: "object"
+      properties: { }
+    GoogleTokenRequest:
+      type: "object"
+      properties:
+        idToken:
+          type: "string"
+      required:
+        - "idToken"
+    UserInfo:
+      type: "object"
+      properties:
+        email:
+          type: "string"
+        firstName:
+          type: "string"
+        lastName:
+          type: "string"
+      required:
+        - "email"
+        - "firstName"
+        - "lastName"
+    AuthResponse:
+      type: "object"
+      properties:
+        token:
+          type: "string"
+        user:
+          $ref: "#/components/schemas/UserInfo"
+      required:
+        - "token"
+        - "user"

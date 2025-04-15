@@ -23,10 +23,12 @@ class SecurityConfig(
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { auth ->
                 auth
-                    .requestMatchers("/auth/**", "/oauth2/**", "/hello")
-                    .permitAll()
+//                    .requestMatchers("/auth/**", "/oauth2/**", "/hello")
+//                    .permitAll()
+//                    .anyRequest()
+//                    .authenticated()
                     .anyRequest()
-                    .authenticated()
+                    .permitAll()
             }.oauth2Login { oauth2 ->
                 oauth2
                     .loginPage("/auth")

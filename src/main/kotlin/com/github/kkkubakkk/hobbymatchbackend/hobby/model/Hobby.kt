@@ -1,5 +1,6 @@
 package com.github.kkkubakkk.hobbymatchbackend.hobby.model
 
+import com.fasterxml.jackson.annotation.JsonBackReference
 import com.github.kkkubakkk.hobbymatchbackend.activity.model.Activity
 import com.github.kkkubakkk.hobbymatchbackend.user.model.User
 import jakarta.persistence.Column
@@ -21,6 +22,7 @@ data class Hobby(
     var name: String,
     @ManyToMany(mappedBy = "hobbies")
     var users: MutableSet<User> = mutableSetOf(),
+    @JsonBackReference("activity-hobbies")
     @ManyToMany(mappedBy = "hobbies")
     var activities: MutableSet<Activity> = mutableSetOf(),
 )

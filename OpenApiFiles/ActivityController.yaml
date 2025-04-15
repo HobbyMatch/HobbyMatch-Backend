@@ -1,0 +1,266 @@
+openapi: "3.1.0"
+info:
+  title: "HobbyMatch_Backend API"
+  description: "HobbyMatch_Backend API"
+  version: "1.0.0"
+servers:
+  - url: "https://HobbyMatch_Backend"
+paths:
+  /api/activities:
+    get:
+      summary: "GET api/activities"
+      operationId: "getAllActivities"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/ActivityDTO"
+    post:
+      summary: "POST api/activities"
+      operationId: "createActivity"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateActivityDTO"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ActivityDTO"
+    put:
+      summary: "PUT api/activities"
+      operationId: "updateActivity"
+      parameters:
+        - name: "activityId"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+        - name: "organizerUsername"
+          in: "query"
+          required: true
+          schema:
+            type: "string"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateActivityDTO"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ActivityDTO"
+    delete:
+      summary: "DELETE api/activities"
+      operationId: "deleteActivity"
+      parameters:
+        - name: "activityId"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+        - name: "organizerUsername"
+          in: "query"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Unit"
+  /api/activities/enroll:
+    post:
+      summary: "POST api/activities/enroll"
+      operationId: "enrollInActivity"
+      parameters:
+        - name: "activityId"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+        - name: "participantUsername"
+          in: "query"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ActivityDTO"
+  /api/activities/withdraw:
+    post:
+      summary: "POST api/activities/withdraw"
+      operationId: "withdrawFromActivity"
+      parameters:
+        - name: "activityId"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+        - name: "participantUsername"
+          in: "query"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ActivityDTO"
+components:
+  schemas:
+    HobbyDTO:
+      type: "object"
+      properties:
+        name:
+          type: "string"
+      required:
+        - "name"
+    UserDTO:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "int64"
+        firstName:
+          type: "string"
+        lastName:
+          type: "string"
+        username:
+          type: "string"
+        email:
+          type: "string"
+        hobbies:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/HobbyDTO"
+        birthday:
+          type: "string"
+        bio:
+          type: "string"
+      required:
+        - "id"
+        - "firstName"
+        - "lastName"
+        - "username"
+        - "email"
+        - "hobbies"
+        - "birthday"
+    ActivityDTO:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "int64"
+        organizer:
+          $ref: "#/components/schemas/UserDTO"
+        participants:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/UserDTO"
+        title:
+          type: "string"
+        description:
+          type: "string"
+        longitude:
+          type: "number"
+          format: "double"
+        latitude:
+          type: "number"
+          format: "double"
+        datetime:
+          type: "string"
+        hobbies:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/HobbyDTO"
+      required:
+        - "id"
+        - "organizer"
+        - "participants"
+        - "title"
+        - "longitude"
+        - "latitude"
+        - "datetime"
+        - "hobbies"
+    CreateActivityDTO:
+      type: "object"
+      properties:
+        organizerUsername:
+          type: "string"
+        title:
+          type: "string"
+        description:
+          type: "string"
+        longitude:
+          type: "number"
+          format: "double"
+        latitude:
+          type: "number"
+          format: "double"
+        datetime:
+          type: "string"
+        hobbies:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/HobbyDTO"
+      required:
+        - "organizerUsername"
+        - "title"
+        - "description"
+        - "longitude"
+        - "latitude"
+        - "datetime"
+        - "hobbies"
+    UpdateActivityDTO:
+      type: "object"
+      properties:
+        title:
+          type: "string"
+        description:
+          type: "string"
+        longitude:
+          type: "number"
+          format: "double"
+        latitude:
+          type: "number"
+          format: "double"
+        datetime:
+          type: "string"
+        hobbies:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/HobbyDTO"
+      required:
+        - "title"
+        - "longitude"
+        - "latitude"
+        - "datetime"
+        - "hobbies"
+    Unit:
+      type: "object"
+      properties: { }

@@ -263,6 +263,8 @@ components:
             $ref: "#/components/schemas/HobbyDTO"
         bio:
           type: "string"
+        birthday:
+          type: "string"
       required:
         - "firstName"
         - "lastName"

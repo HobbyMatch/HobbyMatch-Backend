@@ -1,5 +1,6 @@
 package com.github.kkkubakkk.hobbymatchbackend.activity.model
 
+import com.fasterxml.jackson.annotation.JsonManagedReference
 import com.github.kkkubakkk.hobbymatchbackend.hobby.model.Hobby
 import com.github.kkkubakkk.hobbymatchbackend.location.model.Location
 import com.github.kkkubakkk.hobbymatchbackend.user.model.User
@@ -24,9 +25,11 @@ data class Activity(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", updatable = false, nullable = false)
     val id: Long = 0,
+    @JsonManagedReference("organizer-activities")
     @ManyToOne
     @JoinColumn(name = "organizer_id", nullable = false)
     val organizer: User,
+    @JsonManagedReference("participant-activities")
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "activities_participants",
@@ -42,7 +45,8 @@ data class Activity(
     var location: Location,
     @Column(name = "datetime", nullable = false, columnDefinition = "DATETIME")
     var dateTime: LocalDateTime,
-    @ManyToMany(fetch = FetchType.LAZY)
+    @JsonManagedReference("activity-hobbies")
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "activities_hobbies",
         joinColumns = [JoinColumn(name = "activity_id")],
