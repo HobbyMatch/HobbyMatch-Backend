@@ -4,7 +4,9 @@ import com.github.kkkubakkk.hobbymatchbackend.activity.dto.ActivityDTO
 import com.github.kkkubakkk.hobbymatchbackend.activity.dto.CreateActivityDTO
 import com.github.kkkubakkk.hobbymatchbackend.activity.dto.EnrollInActivityDTO
 import com.github.kkkubakkk.hobbymatchbackend.activity.dto.UpdateActivityDTO
+import com.github.kkkubakkk.hobbymatchbackend.activity.dto.WithdrawFromActivityDTO
 import com.github.kkkubakkk.hobbymatchbackend.activity.service.ActivityService
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -21,17 +23,22 @@ import org.springframework.web.bind.annotation.RestController
 class ActivityController(
     private val activityService: ActivityService,
 ) {
+    private val logger = LoggerFactory.getLogger(ActivityController::class.java)
+
     @GetMapping
     fun getAllActivities(): ResponseEntity<List<ActivityDTO>> = ResponseEntity.ok(activityService.getAllActivities())
 
     @PostMapping
     fun createActivity(
         @RequestBody createActivityDTO: CreateActivityDTO,
-    ): ResponseEntity<ActivityDTO> =
+    ): ResponseEntity<Any> =
         try {
             ResponseEntity.status(HttpStatus.CREATED).body(activityService.createActivity(createActivityDTO))
         } catch (e: IllegalArgumentException) {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).build()
+            logger.error("Failed to create activity: ${e.message}", e)
+            ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(mapOf("error" to e.message))
         }
 
     @PutMapping
@@ -39,46 +46,54 @@ class ActivityController(
         @RequestParam activityId: Long,
         @RequestBody updateActivityDTO: UpdateActivityDTO,
         @RequestParam organizerUsername: String,
-    ): ResponseEntity<ActivityDTO> =
+    ): ResponseEntity<Any> =
         try {
             ResponseEntity.ok(activityService.updateActivity(activityId, updateActivityDTO, organizerUsername))
         } catch (e: IllegalArgumentException) {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).build()
+            logger.error("Failed to update activity: ${e.message}", e)
+            ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(mapOf("error" to e.message))
         }
 
     @DeleteMapping
     fun deleteActivity(
         @RequestParam activityId: Long,
         @RequestParam organizerUsername: String,
-    ): ResponseEntity<Unit> =
+    ): ResponseEntity<Any> =
         try {
             activityService.deleteActivity(activityId, organizerUsername)
-            ResponseEntity.noContent().build()
+            ResponseEntity.ok().build()
         } catch (e: IllegalArgumentException) {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).build()
+            logger.error("Failed to delete activity: ${e.message}", e)
+            ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(mapOf("error" to e.message))
         }
 
     @PostMapping("/enroll")
     fun enrollInActivity(
-        @RequestParam activityId: Long,
-        @RequestParam participantUsername: String,
-    ): ResponseEntity<ActivityDTO> =
+        @RequestBody enrollDTO: EnrollInActivityDTO,
+    ): ResponseEntity<Any> =
         try {
-            val enrollDTO = EnrollInActivityDTO(participantUsername, activityId)
             ResponseEntity.ok(activityService.enrollInActivity(enrollDTO))
         } catch (e: IllegalArgumentException) {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).build()
+            logger.error("Failed to enroll in activity: ${e.message}", e)
+            ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(mapOf("error" to e.message))
         }
 
     @PostMapping("/withdraw")
     fun withdrawFromActivity(
-        @RequestParam activityId: Long,
-        @RequestParam participantUsername: String,
-    ): ResponseEntity<ActivityDTO> =
+        @RequestBody withdrawDTO: WithdrawFromActivityDTO,
+    ): ResponseEntity<Any> =
         try {
-            val enrollDTO = EnrollInActivityDTO(participantUsername, activityId)
-            ResponseEntity.ok(activityService.withdrawFromActivity(enrollDTO))
+            ResponseEntity.ok(activityService.withdrawFromActivity(withdrawDTO))
         } catch (e: IllegalArgumentException) {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).build()
+            logger.error("Failed to withdraw from activity: ${e.message}", e)
+            ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(mapOf("error" to e.message))
         }
 }

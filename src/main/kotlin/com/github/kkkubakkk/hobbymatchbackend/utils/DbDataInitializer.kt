@@ -115,7 +115,6 @@ class DbDataInitializer(
 
         val jan = users.find { it.username == "janek123" }!!
         val anna = users.find { it.username == "ania_nowak" }!!
-        val piotr = users.find { it.username == "piotr_w" }!!
 
         return listOf(
             Activity(
@@ -124,22 +123,16 @@ class DbDataInitializer(
                 description = "Casual football game in the city park",
                 location = Location(latitude = 52.2297, longitude = 21.0122),
                 dateTime = LocalDateTime.now().plusDays(2),
-            ).apply {
-                hobbies["Football"]?.let { this.hobbies.add(it) }
-                participants.add(jan)
-                participants.add(piotr)
-            },
+                hobby = hobbies["Football"]!!,
+            ),
             Activity(
                 organizer = anna,
                 title = "Chess competition",
                 description = "Monthly chess tournament at the local club",
                 location = Location(longitude = 50.0647, latitude = 19.9450),
                 dateTime = LocalDateTime.now().plusDays(5),
-            ).apply {
-                hobbies["Chess"]?.let { this.hobbies.add(it) }
-                participants.add(anna)
-                participants.add(jan)
-            },
+                hobby = hobbies["Chess"]!!,
+            ),
         )
     }
 }

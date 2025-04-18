@@ -1,6 +1,6 @@
 package com.github.kkkubakkk.hobbymatchbackend.activity.dto
 
-data class EnrollInActivityDTO(
+class WithdrawFromActivityDTO(
     val participantEmail: String,
     val activityId: Long,
 )

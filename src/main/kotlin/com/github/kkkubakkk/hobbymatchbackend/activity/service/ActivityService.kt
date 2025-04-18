@@ -4,11 +4,11 @@ import com.github.kkkubakkk.hobbymatchbackend.activity.dto.ActivityDTO
 import com.github.kkkubakkk.hobbymatchbackend.activity.dto.CreateActivityDTO
 import com.github.kkkubakkk.hobbymatchbackend.activity.dto.EnrollInActivityDTO
 import com.github.kkkubakkk.hobbymatchbackend.activity.dto.UpdateActivityDTO
+import com.github.kkkubakkk.hobbymatchbackend.activity.dto.WithdrawFromActivityDTO
 import com.github.kkkubakkk.hobbymatchbackend.activity.dto.toDTO
 import com.github.kkkubakkk.hobbymatchbackend.activity.model.Activity
 import com.github.kkkubakkk.hobbymatchbackend.activity.repository.ActivityRepository
 import com.github.kkkubakkk.hobbymatchbackend.hobby.repository.HobbyRepository
-import com.github.kkkubakkk.hobbymatchbackend.location.model.Location
 import com.github.kkkubakkk.hobbymatchbackend.user.repository.UserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -21,24 +21,24 @@ class ActivityService(
     private val hobbyRepository: HobbyRepository,
 ) {
     fun createActivity(createActivityDTO: CreateActivityDTO): ActivityDTO {
-        val organizer = userRepository.findByUsername(createActivityDTO.organizerUsername)
+        val organizer = userRepository.findByUsername(createActivityDTO.organizerEmail)
         require(organizer.isPresent) { "User with this username doesn't exist" }
-        val hobbies = hobbyRepository.findAllByNameIn(createActivityDTO.hobbies.map { it.name })
+        val hobby = hobbyRepository.findByName(createActivityDTO.hobby.name)
+        require(hobby != null) { "Hobby with this name doesn't exist" }
 
         val activity =
             Activity(
                 organizer = organizer.get(),
+                maxParticipants = createActivityDTO.maxParticipants,
                 title = createActivityDTO.title,
                 description = createActivityDTO.description,
-                location = Location(longitude = createActivityDTO.longitude, latitude = createActivityDTO.latitude),
+                location = createActivityDTO.location,
                 dateTime = LocalDateTime.parse(createActivityDTO.datetime),
-                hobbies = hobbies.toMutableSet(),
+                hobby = hobby,
             )
 
         organizer.get().organizedActivities.add(activity)
-        for (hobby in hobbies) {
-            hobby.activities.add(activity)
-        }
+        hobby.activities.add(activity)
 
         activityRepository.save(activity)
 
@@ -52,47 +52,37 @@ class ActivityService(
     fun updateActivity(
         id: Long,
         updateActivityDTO: UpdateActivityDTO,
-        organizerUsername: String,
+        organizerEmail: String,
     ): ActivityDTO {
         val activity = activityRepository.findById(id)
         require(activity.isPresent) { "Activity with id $id not found" }
 
-        val organizer = userRepository.findByUsername(organizerUsername)
-        require(organizer.isPresent) { "User with username $organizerUsername not found" }
+        val organizer = userRepository.findByEmail(organizerEmail)
+        require(organizer.isPresent) { "User with email $organizerEmail not found" }
 
+        // TODO: Do it better (really validate the user is the organizer, maybe from the token)
         // Validate the organizer is the one updating the activity
         require(activity.get().organizer.id == organizer.get().id) {
             "Only the organizer can update this activity"
         }
 
         val activityEntity = activity.get()
+        activityEntity.maxParticipants = updateActivityDTO.maxParticipants
         activityEntity.title = updateActivityDTO.title
         activityEntity.description = updateActivityDTO.description
-        activityEntity.location =
-            Location(
-                longitude = updateActivityDTO.longitude,
-                latitude = updateActivityDTO.latitude,
-            )
+        activityEntity.location = updateActivityDTO.location
         activityEntity.dateTime = LocalDateTime.parse(updateActivityDTO.datetime)
 
-        // Update hobbies
-        val newHobbies = hobbyRepository.findAllByNameIn(updateActivityDTO.hobbies.map { it.name })
+        // Update hobby
+        val newHobby = hobbyRepository.findByName(updateActivityDTO.hobby.name)
+        require(newHobby != null) { "Hobby with this name doesn't exist" }
 
-        // Remove activity from old hobbies that aren't in the new set
-        val hobbiesToRemove = activityEntity.hobbies.filter { !newHobbies.contains(it) }
-        for (hobby in hobbiesToRemove) {
-            hobby.activities.remove(activityEntity)
-        }
+        // Set new hobby
+        activityEntity.hobby.activities.remove(activityEntity)
+        activityEntity.hobby = newHobby
 
-        // Add activity to new hobbies
-        activityEntity.hobbies.clear()
-        activityEntity.hobbies.addAll(newHobbies)
-
-        for (hobby in newHobbies) {
-            if (!hobby.activities.contains(activityEntity)) {
-                hobby.activities.add(activityEntity)
-            }
-        }
+        // Add activity to new hobby
+        activityEntity.hobby.activities.add(activityEntity)
 
         return activityRepository.save(activityEntity).toDTO()
     }
@@ -121,9 +111,7 @@ class ActivityService(
         }
 
         // Remove from hobbies
-        activityEntity.hobbies.forEach {
-            it.activities.remove(activityEntity)
-        }
+        activityEntity.hobby.activities.remove(activityEntity)
 
         // Remove from organizer
         activityEntity.organizer.organizedActivities.remove(activityEntity)
@@ -135,7 +123,7 @@ class ActivityService(
     fun enrollInActivity(enrollInActivityDTO: EnrollInActivityDTO): ActivityDTO {
         val activity = activityRepository.findById(enrollInActivityDTO.activityId)
         require(activity.isPresent) { "Activity with this id doesn't exist" }
-        val participant = userRepository.findByUsername(enrollInActivityDTO.participantUsername)
+        val participant = userRepository.findByUsername(enrollInActivityDTO.participantEmail)
         require(participant.isPresent) { "User with this username doesn't exist" }
 
         activity.get().participants.add(participant.get())
@@ -147,10 +135,10 @@ class ActivityService(
         return activity.get().toDTO()
     }
 
-    fun withdrawFromActivity(enrollInActivityDTO: EnrollInActivityDTO): ActivityDTO {
-        val activity = activityRepository.findById(enrollInActivityDTO.activityId)
+    fun withdrawFromActivity(withdrawFromActivity: WithdrawFromActivityDTO): ActivityDTO {
+        val activity = activityRepository.findById(withdrawFromActivity.activityId)
         require(activity.isPresent) { "Activity with this id doesn't exist" }
-        val participant = userRepository.findByUsername(enrollInActivityDTO.participantUsername)
+        val participant = userRepository.findByUsername(withdrawFromActivity.participantEmail)
         require(participant.isPresent) { "User with this username doesn't exist" }
 
         activity.get().participants.remove(participant.get())

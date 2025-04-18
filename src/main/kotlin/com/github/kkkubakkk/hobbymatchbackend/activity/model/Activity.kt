@@ -37,6 +37,8 @@ data class Activity(
         inverseJoinColumns = [JoinColumn(name = "user_id")],
     )
     var participants: MutableSet<User> = mutableSetOf(),
+    @Column(name = "max_participants", nullable = false)
+    var maxParticipants: Int = 10,
     @Column(name = "title", nullable = false, columnDefinition = "NVARCHAR(100)")
     var title: String,
     @Column(name = "description", nullable = true, columnDefinition = "NVARCHAR(MAX)")
@@ -45,12 +47,7 @@ data class Activity(
     var location: Location,
     @Column(name = "datetime", nullable = false, columnDefinition = "DATETIME")
     var dateTime: LocalDateTime,
-    @JsonManagedReference("activity-hobbies")
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "activities_hobbies",
-        joinColumns = [JoinColumn(name = "activity_id")],
-        inverseJoinColumns = [JoinColumn(name = "hobby_id")],
-    )
-    var hobbies: MutableSet<Hobby> = mutableSetOf(),
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hobby_id", nullable = false)
+    var hobby: Hobby,
 )
