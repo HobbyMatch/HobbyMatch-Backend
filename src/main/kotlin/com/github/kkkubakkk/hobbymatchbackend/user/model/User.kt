@@ -18,6 +18,7 @@ import jakarta.persistence.Table
 import org.hibernate.proxy.HibernateProxy
 import java.time.LocalDate
 
+// TODO: Fix the model/service/controller, becuase getting user causes 500 Internarl Server Error
 @Entity
 @Table(name = "users")
 data class User(

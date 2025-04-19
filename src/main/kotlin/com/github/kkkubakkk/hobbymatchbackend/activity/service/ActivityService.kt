@@ -61,7 +61,6 @@ class ActivityService(
         require(organizer.isPresent) { "User with email $organizerEmail not found" }
 
         // TODO: Do it better (really validate the user is the organizer, maybe from the token)
-        // Validate the organizer is the one updating the activity
         require(activity.get().organizer.id == organizer.get().id) {
             "Only the organizer can update this activity"
         }

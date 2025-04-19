@@ -1,0 +1,630 @@
+openapi: "3.1.0"
+info:
+  title: "HobbyMatch_Backend API"
+  description: "HobbyMatch_Backend API"
+  version: "1.0.0"
+servers:
+  - url: "http://localhost:8080"
+paths:
+  /hello:
+    get:
+      summary: "GET hello"
+      operationId: "hello"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+  /api/users/email/{email}:
+    put:
+      summary: "PUT api/users/email/{email}"
+      operationId: "updateUser"
+      parameters:
+        - name: "email"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserDTO"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserDTO"
+    get:
+      summary: "GET api/users/email/{email}"
+      operationId: "getUserByEmail"
+      parameters:
+        - name: "email"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserDTO"
+  /api/users/username/{username}:
+    put:
+      summary: "PUT api/users/username/{username}"
+      operationId: "updateUserByUsername"
+      parameters:
+        - name: "username"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserDTO"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserDTO"
+    get:
+      summary: "GET api/users/username/{username}"
+      operationId: "getUserByUsername"
+      parameters:
+        - name: "username"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserDTO"
+  /api/users/email/{email}/activate:
+    put:
+      summary: "PUT api/users/email/{email}/activate"
+      operationId: "activateUser"
+      parameters:
+        - name: "email"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserDTO"
+  /api/users/email/{email}/deactivate:
+    put:
+      summary: "PUT api/users/email/{email}/deactivate"
+      operationId: "deactivateUser"
+      parameters:
+        - name: "email"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserDTO"
+  /api/users:
+    post:
+      summary: "POST api/users"
+      operationId: "createUser"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUserDTO"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserDTO"
+    get:
+      summary: "GET api/users"
+      operationId: "getAllUsers"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/UserDTO"
+  /api/users/search:
+    post:
+      summary: "POST api/users/search"
+      operationId: "searchUsers"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SearchUserDTO"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/UserDTO"
+  /api/users/exists/{email}:
+    get:
+      summary: "GET api/users/exists/{email}"
+      operationId: "userExists"
+      parameters:
+        - name: "email"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+  /auth/refresh:
+    post:
+      summary: "POST auth/refresh"
+      operationId: "refreshToken"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Object"
+  /auth/mobile/google:
+    post:
+      summary: "POST auth/mobile/google"
+      operationId: "authenticateWithGoogle"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GoogleTokenRequest"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+  /auth/me:
+    get:
+      summary: "GET auth/me"
+      operationId: "getCurrentUser"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Object"
+  /api/activities:
+    put:
+      summary: "PUT api/activities"
+      operationId: "updateActivity"
+      parameters:
+        - name: "activityId"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+        - name: "organizerUsername"
+          in: "query"
+          required: true
+          schema:
+            type: "string"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateActivityDTO"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Object"
+    post:
+      summary: "POST api/activities"
+      operationId: "createActivity"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateActivityDTO"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Object"
+    delete:
+      summary: "DELETE api/activities"
+      operationId: "deleteActivity"
+      parameters:
+        - name: "activityId"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+        - name: "organizerUsername"
+          in: "query"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Object"
+    get:
+      summary: "GET api/activities"
+      operationId: "getAllActivities"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/ActivityDTO"
+  /api/activities/enroll:
+    post:
+      summary: "POST api/activities/enroll"
+      operationId: "enrollInActivity"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EnrollInActivityDTO"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Object"
+  /api/activities/withdraw:
+    post:
+      summary: "POST api/activities/withdraw"
+      operationId: "withdrawFromActivity"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WithdrawFromActivityDTO"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Object"
+  /api/hobbies:
+    get:
+      summary: "GET api/hobbies"
+      operationId: "getAllHobbies"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/HobbyDTO"
+components:
+  schemas:
+    HobbyDTO:
+      type: "object"
+      properties:
+        name:
+          type: "string"
+      required:
+        - "name"
+    UpdateUserDTO:
+      type: "object"
+      properties:
+        firstName:
+          type: "string"
+        lastName:
+          type: "string"
+        username:
+          type: "string"
+        hobbies:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/HobbyDTO"
+        bio:
+          type: "string"
+        birthday:
+          type: "string"
+      required:
+        - "firstName"
+        - "lastName"
+        - "username"
+        - "hobbies"
+    UserDTO:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "int64"
+        firstName:
+          type: "string"
+        lastName:
+          type: "string"
+        username:
+          type: "string"
+        email:
+          type: "string"
+        hobbies:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/HobbyDTO"
+        birthday:
+          type: "string"
+        bio:
+          type: "string"
+      required:
+        - "id"
+        - "firstName"
+        - "lastName"
+        - "username"
+        - "email"
+        - "hobbies"
+        - "birthday"
+    CreateUserDTO:
+      type: "object"
+      properties:
+        firstName:
+          type: "string"
+        lastName:
+          type: "string"
+        username:
+          type: "string"
+        email:
+          type: "string"
+        birthday:
+          type: "string"
+        bio:
+          type: "string"
+        hobbies:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/HobbyDTO"
+      required:
+        - "firstName"
+        - "lastName"
+        - "username"
+        - "email"
+        - "birthday"
+        - "hobbies"
+    SearchUserDTO:
+      type: "object"
+      properties:
+        firstName:
+          type: "string"
+        lastName:
+          type: "string"
+        username:
+          type: "string"
+        email:
+          type: "string"
+    Object:
+      type: "object"
+      properties: { }
+    GoogleTokenRequest:
+      type: "object"
+      properties:
+        idToken:
+          type: "string"
+      required:
+        - "idToken"
+    UserInfo:
+      type: "object"
+      properties:
+        email:
+          type: "string"
+        firstName:
+          type: "string"
+        lastName:
+          type: "string"
+      required:
+        - "email"
+        - "firstName"
+        - "lastName"
+    AuthResponse:
+      type: "object"
+      properties:
+        token:
+          type: "string"
+        user:
+          $ref: "#/components/schemas/UserInfo"
+      required:
+        - "token"
+        - "user"
+    Location:
+      type: "object"
+      properties:
+        latitude:
+          type: "number"
+          format: "double"
+        longitude:
+          type: "number"
+          format: "double"
+      required:
+        - "latitude"
+        - "longitude"
+    UpdateActivityDTO:
+      type: "object"
+      properties:
+        maxParticipants:
+          type: "integer"
+          format: "int32"
+        title:
+          type: "string"
+        description:
+          type: "string"
+        location:
+          $ref: "#/components/schemas/Location"
+        datetime:
+          type: "string"
+        hobby:
+          $ref: "#/components/schemas/HobbyDTO"
+      required:
+        - "maxParticipants"
+        - "title"
+        - "location"
+        - "datetime"
+        - "hobby"
+    CreateActivityDTO:
+      type: "object"
+      properties:
+        organizerEmail:
+          type: "string"
+        maxParticipants:
+          type: "integer"
+          format: "int32"
+        title:
+          type: "string"
+        description:
+          type: "string"
+        location:
+          $ref: "#/components/schemas/Location"
+        datetime:
+          type: "string"
+        hobby:
+          $ref: "#/components/schemas/HobbyDTO"
+      required:
+        - "organizerEmail"
+        - "maxParticipants"
+        - "title"
+        - "description"
+        - "location"
+        - "datetime"
+        - "hobby"
+    EnrollInActivityDTO:
+      type: "object"
+      properties:
+        participantEmail:
+          type: "string"
+        activityId:
+          type: "integer"
+          format: "int64"
+      required:
+        - "participantEmail"
+        - "activityId"
+    WithdrawFromActivityDTO:
+      type: "object"
+      properties:
+        participantEmail:
+          type: "string"
+        activityId:
+          type: "integer"
+          format: "int64"
+      required:
+        - "participantEmail"
+        - "activityId"
+    UserInfoDTO:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "int64"
+        firstName:
+          type: "string"
+        lastName:
+          type: "string"
+        username:
+          type: "string"
+        email:
+          type: "string"
+        birthday:
+          type: "string"
+      required:
+        - "id"
+        - "firstName"
+        - "lastName"
+        - "username"
+        - "email"
+        - "birthday"
+    ActivityDTO:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "int64"
+        organizer:
+          $ref: "#/components/schemas/UserInfoDTO"
+        participants:
+          type: "integer"
+          format: "int32"
+        maxParticipants:
+          type: "integer"
+          format: "int32"
+        title:
+          type: "string"
+        description:
+          type: "string"
+        location:
+          $ref: "#/components/schemas/Location"
+        datetime:
+          type: "string"
+        hobby:
+          $ref: "#/components/schemas/HobbyDTO"
+      required:
+        - "id"
+        - "organizer"
+        - "participants"
+        - "maxParticipants"
+        - "title"
+        - "location"
+        - "datetime"
+        - "hobby"
