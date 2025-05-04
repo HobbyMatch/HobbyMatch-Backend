@@ -10,13 +10,13 @@ import com.github.kkkubakkk.hobbymatchbackend.user.repository.UserRepository
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.BDDMockito.*
+import org.mockito.BDDMockito.given
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
 import java.time.LocalDate
-
-import java.util.*
+import java.util.Optional
 
 class UserServiceTest {
-
     private lateinit var userRepository: UserRepository
     private lateinit var hobbyRepository: HobbyRepository
     private lateinit var userService: UserService
@@ -26,25 +26,27 @@ class UserServiceTest {
     private val lastName = "Doe"
     private val username = "johndoe"
     private val email = "johndoe@example.com"
-    private var hobby = Hobby(
-        id = 1L,
-        name = "Volleyball",
-        users = mutableSetOf(),
-        activities = mutableSetOf()
-    )
-    private val birthday = LocalDate.of(1989,8,19)
+    private var hobby =
+        Hobby(
+            id = 1L,
+            name = "Volleyball",
+            users = mutableSetOf(),
+            activities = mutableSetOf(),
+        )
+    private val birthday = LocalDate.of(1989, 8, 19)
     private val bio = "just another user bio..."
 
-    private val user = User(
-        id,
-        firstName,
-        lastName,
-        username,
-        email,
-        mutableSetOf(hobby),
-        birthday,
-        bio,
-    )
+    private val user =
+        User(
+            id,
+            firstName,
+            lastName,
+            username,
+            email,
+            mutableSetOf(hobby),
+            birthday,
+            bio,
+        )
 
     @BeforeEach
     fun setup() {
@@ -57,24 +59,26 @@ class UserServiceTest {
 
     @Test
     fun `create user test`() {
-        val createdUser = User(
-            firstName = firstName,
-            lastName = lastName,
-            username = username,
-            email = email,
-            hobbies = mutableSetOf(hobby),
-            birthday = birthday,
-            bio = bio,
-        )
-        val createUserDTO = CreateUserDTO(
-            firstName = firstName,
-            lastName = lastName,
-            username = username,
-            email = email,
-            hobbies = listOf(hobby.toDTO()),
-            birthday = birthday.toString(),
-            bio = bio,
-        )
+        val createdUser =
+            User(
+                firstName = firstName,
+                lastName = lastName,
+                username = username,
+                email = email,
+                hobbies = mutableSetOf(hobby),
+                birthday = birthday,
+                bio = bio,
+            )
+        val createUserDTO =
+            CreateUserDTO(
+                firstName = firstName,
+                lastName = lastName,
+                username = username,
+                email = email,
+                hobbies = listOf(hobby.toDTO()),
+                birthday = birthday.toString(),
+                bio = bio,
+            )
         given(userRepository.findByEmail(email)).willReturn(Optional.empty())
         given(userRepository.save(createdUser)).willReturn(createdUser)
         given(hobbyRepository.findAllByNameIn(createUserDTO.hobbies.map { it.name })).willReturn(listOf(hobby))
@@ -103,25 +107,26 @@ class UserServiceTest {
     @Test
     fun `find an OAuth user`() {
         given(userRepository.findByEmail(email)).willReturn(Optional.of(user))
-        Assertions.assertEquals(userService.findOrCreateOAuthUser(email,firstName,lastName),user)
+        Assertions.assertEquals(userService.findOrCreateOAuthUser(email, firstName, lastName), user)
         verify(userRepository).findByEmail(email)
     }
 
     @Test
     fun `create an OAuth user with a username + counter`() {
         given(userRepository.findByEmail(email)).willReturn(Optional.empty())
-        val counter = 1;
-        val diffUser = User(
-            id,
-            "Laura",
-            lastName,
-            username,
-            email,
-            mutableSetOf(hobby),
-            null,
-            null,
-        )
-        given (userRepository.findByUsername(username)).willReturn(Optional.of(diffUser))
+        val counter = 1
+        val diffUser =
+            User(
+                id,
+                "Laura",
+                lastName,
+                username,
+                email,
+                mutableSetOf(hobby),
+                null,
+                null,
+            )
+        given(userRepository.findByUsername(username)).willReturn(Optional.of(diffUser))
         val newUsername = "$username$counter"
         val newUser =
             User(
@@ -148,11 +153,11 @@ class UserServiceTest {
     @Test
     fun `exception thrown when getting a non-existent user by email`() {
         given(userRepository.findByEmail(email)).willReturn(Optional.empty())
-        val ex = Assertions.assertThrows(IllegalArgumentException::class.java)
-        {
-            userService.getUserByEmail(email)
-        }
-        Assertions.assertEquals("User not found",ex.message)
+        val ex =
+            Assertions.assertThrows(IllegalArgumentException::class.java) {
+                userService.getUserByEmail(email)
+            }
+        Assertions.assertEquals("User not found", ex.message)
         verify(userRepository).findByEmail(email)
     }
 
@@ -166,11 +171,11 @@ class UserServiceTest {
     @Test
     fun `exception thrown when getting a non-existent user by username`() {
         given(userRepository.findByUsername(username)).willReturn(Optional.empty())
-        val ex = Assertions.assertThrows(IllegalArgumentException::class.java)
-        {
-            userService.getUserByUsername(username)
-        }
-        Assertions.assertEquals("User not found",ex.message)
+        val ex =
+            Assertions.assertThrows(IllegalArgumentException::class.java) {
+                userService.getUserByUsername(username)
+            }
+        Assertions.assertEquals("User not found", ex.message)
         verify(userRepository).findByUsername(username)
     }
 
@@ -194,47 +199,49 @@ class UserServiceTest {
     @Test
     fun `activate an existent user`() {
         given(userRepository.findByEmail(email)).willReturn(Optional.of(user))
-        val activatedUser = User(
-            id,
-            firstName,
-            lastName,
-            username,
-            email,
-            mutableSetOf(hobby),
-            birthday,
-            bio,
-            isActive = true,
-        )
+        val activatedUser =
+            User(
+                id,
+                firstName,
+                lastName,
+                username,
+                email,
+                mutableSetOf(hobby),
+                birthday,
+                bio,
+                isActive = true,
+            )
         given(userRepository.save(activatedUser)).willReturn(activatedUser)
         Assertions.assertEquals(activatedUser.toDTO(), userService.activateUser(email))
-    verify(userRepository).findByEmail(email)
+        verify(userRepository).findByEmail(email)
     }
 
     @Test
     fun `exception thrown when activating a non-existent user`() {
         given(userRepository.findByEmail(email)).willReturn(Optional.empty())
-        val ex = Assertions.assertThrows(IllegalArgumentException::class.java)
-        {
-            userService.activateUser(email)
-        }
-        Assertions.assertEquals("User not found",ex.message)
+        val ex =
+            Assertions.assertThrows(IllegalArgumentException::class.java) {
+                userService.activateUser(email)
+            }
+        Assertions.assertEquals("User not found", ex.message)
         verify(userRepository).findByEmail(email)
     }
 
     @Test
     fun `deactivate an existent user`() {
         given(userRepository.findByEmail(email)).willReturn(Optional.of(user))
-        val deactivatedUser = User(
-            id,
-            firstName,
-            lastName,
-            username,
-            email,
-            mutableSetOf(hobby),
-            birthday,
-            bio,
-            isActive = false,
-        )
+        val deactivatedUser =
+            User(
+                id,
+                firstName,
+                lastName,
+                username,
+                email,
+                mutableSetOf(hobby),
+                birthday,
+                bio,
+                isActive = false,
+            )
         given(userRepository.save(deactivatedUser)).willReturn(deactivatedUser)
         Assertions.assertEquals(deactivatedUser.toDTO(), userService.deactivateUser(email))
         verify(userRepository).findByEmail(email)
@@ -243,11 +250,11 @@ class UserServiceTest {
     @Test
     fun `exception thrown when deactivating a non-existent user`() {
         given(userRepository.findByEmail(email)).willReturn(Optional.empty())
-        val ex = Assertions.assertThrows(IllegalArgumentException::class.java)
-        {
-            userService.deactivateUser(email)
-        }
-        Assertions.assertEquals("User not found",ex.message)
+        val ex =
+            Assertions.assertThrows(IllegalArgumentException::class.java) {
+                userService.deactivateUser(email)
+            }
+        Assertions.assertEquals("User not found", ex.message)
         verify(userRepository).findByEmail(email)
     }
 
