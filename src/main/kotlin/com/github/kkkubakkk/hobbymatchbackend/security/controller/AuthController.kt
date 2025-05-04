@@ -1,5 +1,6 @@
 package com.github.kkkubakkk.hobbymatchbackend.security.controller
 
+import com.github.kkkubakkk.hobbymatchbackend.bclient.service.BusinessClientService
 import com.github.kkkubakkk.hobbymatchbackend.security.component.JwtUtils
 import com.github.kkkubakkk.hobbymatchbackend.security.component.JwtUtils.Companion.getAuthenticatedUserId
 import com.github.kkkubakkk.hobbymatchbackend.security.dto.LoginDTO
@@ -26,6 +27,7 @@ import java.security.GeneralSecurityException
 class AuthController(
     private val jwtUtils: JwtUtils,
     private val userService: UserService,
+    private val businessClientService: BusinessClientService,
 ) {
     @Value("\${spring.security.oauth2.client.registration.google.client-id}")
     private lateinit var googleClientId: String
@@ -83,13 +85,19 @@ class AuthController(
                 val lastName = payload["family_name"] as? String ?: ""
                 val name = "$firstName $lastName"
 
-                // TODO: Create a regular OR business user based on the request
-                val user = userService.createUser(email, name)
+                var loginDto = LoginDTO()
+                if (request.role == "USER") {
+                    val user = userService.createUser(email, name)
+                    loginDto = user.toLoginDTO()
+                } else {
+                    val bClient = businessClientService.createBusinessClient(email, name)
+                    loginDto = bClient.toLoginDTO()
+                }
 
-                val accessToken = jwtUtils.generateAccessToken(user.id, request.role)
-                val refreshToken = jwtUtils.generateRefreshToken(user.id, request.role)
+                val accessToken = jwtUtils.generateAccessToken(loginDto.id, request.role)
+                val refreshToken = jwtUtils.generateRefreshToken(loginDto.id, request.role)
 
-                return ResponseEntity.ok(AuthResponse(accessToken, refreshToken, user.toLoginDTO()))
+                return ResponseEntity.ok(AuthResponse(accessToken, refreshToken, loginDto))
             }
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
         } catch (e: GeneralSecurityException) {
