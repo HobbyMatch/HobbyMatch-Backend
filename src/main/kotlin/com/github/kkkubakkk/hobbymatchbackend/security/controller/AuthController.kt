@@ -1,6 +1,7 @@
 package com.github.kkkubakkk.hobbymatchbackend.security.controller
 
 import com.github.kkkubakkk.hobbymatchbackend.security.component.JwtUtils
+import com.github.kkkubakkk.hobbymatchbackend.security.component.JwtUtils.Companion.getAuthenticatedUserId
 import com.github.kkkubakkk.hobbymatchbackend.user.dto.UserDTO
 import com.github.kkkubakkk.hobbymatchbackend.user.dto.toDTO
 import com.github.kkkubakkk.hobbymatchbackend.user.service.UserService
@@ -11,7 +12,6 @@ import io.jsonwebtoken.io.IOException
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -29,21 +29,11 @@ class AuthController(
     private lateinit var googleClientId: String
 
     // TODO: Update to search for both business and normal users
-    // TODO: Update to use some general method for retrieving token and info from it
     @GetMapping("/me")
     fun getCurrentUser(): ResponseEntity<UserDTO> {
         try {
-            val authentication = SecurityContextHolder.getContext().authentication
-            val bearerToken = authentication.credentials.toString()
-            val token =
-                if (bearerToken.startsWith("Bearer ")) {
-                    bearerToken.substring(7)
-                } else {
-                    bearerToken
-                }
-
-            val userId = jwtUtils.getUserIdFromToken(token)
-            val user = userService.getUser(userId)
+            val authUserId = getAuthenticatedUserId()
+            val user = userService.getUser(authUserId)
             return ResponseEntity.ok(user.toDTO())
         } catch (e: Exception) {
             println(e.message)
@@ -51,7 +41,6 @@ class AuthController(
         }
     }
 
-    // TODO: Update this method to return both access and refresh tokens
     @PostMapping("/refresh")
     fun refreshToken(
         @RequestBody request: RefreshTokenRequest,
@@ -88,7 +77,6 @@ class AuthController(
                 val payload = idToken.payload
                 val email = payload["email"] as String
 
-                // TODO: Update to one name after updating user model
                 val firstName = payload["given_name"] as? String ?: ""
                 val lastName = payload["family_name"] as? String ?: ""
                 val name = "$firstName $lastName"
@@ -96,11 +84,9 @@ class AuthController(
                 // TODO: Create a regular OR business user based on the request
                 val user = userService.findOrCreateOAuthUser(email, name)
 
-                // TODO: Create both access and refresh tokens
                 val accessToken = jwtUtils.generateAccessToken(user.id, request.role)
                 val refreshToken = jwtUtils.generateRefreshToken(user.id, request.role)
 
-                // TODO: Return all info about user and two tokens
                 return ResponseEntity.ok(AuthResponse(accessToken, refreshToken, user.toDTO()))
             }
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()

@@ -5,6 +5,7 @@ import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 import java.util.Date
 import kotlin.collections.HashMap
@@ -127,5 +128,15 @@ class JwtUtils {
 
     companion object {
         private const val START_INDEX = 7
+
+        @JvmStatic
+        fun getAuthenticatedUserId(): Long {
+            val authentication =
+                SecurityContextHolder.getContext().authentication
+                    ?: throw SecurityException("Access denied")
+
+            return authentication.principal as? Long
+                ?: throw SecurityException("Access denied")
+        }
     }
 }
