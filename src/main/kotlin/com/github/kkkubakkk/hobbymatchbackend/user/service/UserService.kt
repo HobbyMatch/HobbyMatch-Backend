@@ -11,7 +11,7 @@ class UserService(
     private val userRepository: UserRepository,
     private val hobbyRepository: HobbyRepository,
 ) {
-    fun findOrCreateOAuthUser(
+    fun createUser(
         email: String,
         name: String,
     ): User {

@@ -2,6 +2,8 @@ package com.github.kkkubakkk.hobbymatchbackend.security.controller
 
 import com.github.kkkubakkk.hobbymatchbackend.security.component.JwtUtils
 import com.github.kkkubakkk.hobbymatchbackend.security.component.JwtUtils.Companion.getAuthenticatedUserId
+import com.github.kkkubakkk.hobbymatchbackend.security.dto.LoginDTO
+import com.github.kkkubakkk.hobbymatchbackend.security.dto.toLoginDTO
 import com.github.kkkubakkk.hobbymatchbackend.user.dto.UserDTO
 import com.github.kkkubakkk.hobbymatchbackend.user.dto.toDTO
 import com.github.kkkubakkk.hobbymatchbackend.user.service.UserService
@@ -82,12 +84,12 @@ class AuthController(
                 val name = "$firstName $lastName"
 
                 // TODO: Create a regular OR business user based on the request
-                val user = userService.findOrCreateOAuthUser(email, name)
+                val user = userService.createUser(email, name)
 
                 val accessToken = jwtUtils.generateAccessToken(user.id, request.role)
                 val refreshToken = jwtUtils.generateRefreshToken(user.id, request.role)
 
-                return ResponseEntity.ok(AuthResponse(accessToken, refreshToken, user.toDTO()))
+                return ResponseEntity.ok(AuthResponse(accessToken, refreshToken, user.toLoginDTO()))
             }
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
         } catch (e: GeneralSecurityException) {
@@ -108,7 +110,7 @@ data class GoogleTokenRequest(
 data class AuthResponse(
     val accessToken: String,
     val refreshToken: String,
-    val user: UserDTO,
+    val loginInfo: LoginDTO,
 )
 
 data class TokenResponse(
