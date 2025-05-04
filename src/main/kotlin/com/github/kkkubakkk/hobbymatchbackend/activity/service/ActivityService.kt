@@ -10,6 +10,7 @@ import com.github.kkkubakkk.hobbymatchbackend.activity.repository.ActivityReposi
 import com.github.kkkubakkk.hobbymatchbackend.hobby.repository.HobbyRepository
 import com.github.kkkubakkk.hobbymatchbackend.location.model.Location
 import com.github.kkkubakkk.hobbymatchbackend.user.repository.UserRepository
+import com.github.kkkubakkk.hobbymatchbackend.venue.repository.VenueRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
@@ -19,10 +20,13 @@ class ActivityService(
     private val activityRepository: ActivityRepository,
     private val userRepository: UserRepository,
     private val hobbyRepository: HobbyRepository,
+    private val venueRepository: VenueRepository,
 ) {
     fun createActivity(createActivityDTO: CreateActivityDTO): ActivityDTO {
         val organizer = userRepository.findByUsername(createActivityDTO.organizerUsername)
         require(!organizer.isPresent) { "User with this username doesn't exist" }
+        val host = venueRepository.findByLocation(createActivityDTO.hostLocation)
+        require(!host.isPresent) { "Venue in chosen location does not exist" }
         val hobbies = hobbyRepository.findAllByNameIn(createActivityDTO.hobbies.map { it.name })
 
         val activity =
@@ -33,6 +37,7 @@ class ActivityService(
                 location = Location(longitude = createActivityDTO.longitude, latitude = createActivityDTO.latitude),
                 dateTime = LocalDateTime.parse(createActivityDTO.datetime),
                 hobbies = hobbies.toMutableSet(),
+                host = host.get(),
             )
 
         organizer.get().organizedActivities.add(activity)

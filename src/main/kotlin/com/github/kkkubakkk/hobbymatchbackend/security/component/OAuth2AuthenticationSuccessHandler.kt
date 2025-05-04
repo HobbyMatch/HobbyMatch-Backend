@@ -4,6 +4,7 @@ import com.github.kkkubakkk.hobbymatchbackend.user.model.User
 import com.github.kkkubakkk.hobbymatchbackend.user.service.UserService
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.springframework.context.annotation.Lazy
 import org.springframework.security.core.Authentication
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken
 import org.springframework.security.oauth2.core.user.OAuth2User
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Component
 @Component
 class OAuth2AuthenticationSuccessHandler(
     private val jwtUtils: JwtUtils,
-    private val userService: UserService,
+    @Lazy private val userService: UserService,
 ) : SimpleUrlAuthenticationSuccessHandler() {
     override fun onAuthenticationSuccess(
         request: HttpServletRequest,

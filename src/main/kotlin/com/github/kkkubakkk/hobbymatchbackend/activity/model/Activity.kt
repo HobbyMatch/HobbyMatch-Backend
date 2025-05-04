@@ -3,6 +3,7 @@ package com.github.kkkubakkk.hobbymatchbackend.activity.model
 import com.github.kkkubakkk.hobbymatchbackend.hobby.model.Hobby
 import com.github.kkkubakkk.hobbymatchbackend.location.model.Location
 import com.github.kkkubakkk.hobbymatchbackend.user.model.User
+import com.github.kkkubakkk.hobbymatchbackend.venue.model.Venue
 import jakarta.persistence.Column
 import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
@@ -34,6 +35,11 @@ data class Activity(
         inverseJoinColumns = [JoinColumn(name = "user_id")],
     )
     var participants: MutableSet<User> = mutableSetOf(),
+    // Adding the Many to One foreign key to the table venues
+    @ManyToOne
+    @JoinColumn(name = "host_id", nullable = false)
+    val host: Venue,
+    //
     @Column(name = "title", nullable = false, columnDefinition = "NVARCHAR(100)")
     var title: String,
     @Column(name = "description", nullable = true, columnDefinition = "NVARCHAR(MAX)")

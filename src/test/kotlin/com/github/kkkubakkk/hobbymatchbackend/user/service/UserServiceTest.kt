@@ -11,13 +11,8 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.BDDMockito.given
-<<<<<<< Updated upstream
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
-=======
-import org.mockito.BDDMockito.mock
-import org.mockito.BDDMockito.verify
->>>>>>> Stashed changes
 import java.time.LocalDate
 import java.util.Optional
 
@@ -64,10 +59,7 @@ class UserServiceTest {
 
     @Test
     fun `create user test`() {
-<<<<<<< Updated upstream
-=======
         // Given
->>>>>>> Stashed changes
         val createdUser =
             User(
                 firstName = firstName,
@@ -127,14 +119,11 @@ class UserServiceTest {
     fun `find an OAuth user`() {
         // Given
         given(userRepository.findByEmail(email)).willReturn(Optional.of(user))
-<<<<<<< Updated upstream
         Assertions.assertEquals(userService.findOrCreateOAuthUser(email, firstName, lastName), user)
-=======
         // When
         val foundUser = userService.findOrCreateOAuthUser(email, firstName, lastName)
         // Then
         Assertions.assertEquals(user, foundUser)
->>>>>>> Stashed changes
         verify(userRepository).findByEmail(email)
     }
 
@@ -189,10 +178,7 @@ class UserServiceTest {
     fun `exception thrown when getting a non-existent user by email`() {
         // Given
         given(userRepository.findByEmail(email)).willReturn(Optional.empty())
-<<<<<<< Updated upstream
-=======
         // Then
->>>>>>> Stashed changes
         val ex =
             Assertions.assertThrows(IllegalArgumentException::class.java) {
                 userService.getUserByEmail(email)
@@ -216,10 +202,7 @@ class UserServiceTest {
     fun `exception thrown when getting a non-existent user by username`() {
         // Given
         given(userRepository.findByUsername(username)).willReturn(Optional.empty())
-<<<<<<< Updated upstream
-=======
         // Then
->>>>>>> Stashed changes
         val ex =
             Assertions.assertThrows(IllegalArgumentException::class.java) {
                 userService.getUserByUsername(username)
@@ -266,14 +249,11 @@ class UserServiceTest {
                 isActive = true,
             )
         given(userRepository.save(activatedUser)).willReturn(activatedUser)
-<<<<<<< Updated upstream
         Assertions.assertEquals(activatedUser.toDTO(), userService.activateUser(email))
-=======
         // When
         val res = userService.activateUser(email)
         // Then
         Assertions.assertEquals(activatedUser.toDTO(), res)
->>>>>>> Stashed changes
         verify(userRepository).findByEmail(email)
     }
 
@@ -281,10 +261,7 @@ class UserServiceTest {
     fun `exception thrown when activating a non-existent user`() {
         // Given
         given(userRepository.findByEmail(email)).willReturn(Optional.empty())
-<<<<<<< Updated upstream
-=======
         // Then
->>>>>>> Stashed changes
         val ex =
             Assertions.assertThrows(IllegalArgumentException::class.java) {
                 userService.activateUser(email)
@@ -321,10 +298,7 @@ class UserServiceTest {
     fun `exception thrown when deactivating a non-existent user`() {
         // Given
         given(userRepository.findByEmail(email)).willReturn(Optional.empty())
-<<<<<<< Updated upstream
-=======
         // Then
->>>>>>> Stashed changes
         val ex =
             Assertions.assertThrows(IllegalArgumentException::class.java) {
                 userService.deactivateUser(email)

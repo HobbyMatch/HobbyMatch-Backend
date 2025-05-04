@@ -2,11 +2,13 @@ package com.github.kkkubakkk.hobbymatchbackend.utils
 
 import com.github.kkkubakkk.hobbymatchbackend.activity.model.Activity
 import com.github.kkkubakkk.hobbymatchbackend.activity.repository.ActivityRepository
+import com.github.kkkubakkk.hobbymatchbackend.bclient.model.BusinessClient
 import com.github.kkkubakkk.hobbymatchbackend.hobby.model.Hobby
 import com.github.kkkubakkk.hobbymatchbackend.hobby.repository.HobbyRepository
 import com.github.kkkubakkk.hobbymatchbackend.location.model.Location
 import com.github.kkkubakkk.hobbymatchbackend.user.model.User
 import com.github.kkkubakkk.hobbymatchbackend.user.repository.UserRepository
+import com.github.kkkubakkk.hobbymatchbackend.venue.model.Venue
 import jakarta.transaction.Transactional
 import org.springframework.boot.CommandLineRunner
 import org.springframework.stereotype.Component
@@ -117,13 +119,36 @@ class DbDataInitializer(
         val anna = users.find { it.username == "ania_nowak" }!!
         val piotr = users.find { it.username == "piotr_w" }!!
 
+        val location1 = Location(latitude = 52.2297, longitude = 21.0122)
+        val location2 = Location(longitude = 50.0647, latitude = 19.9450)
+        // Creating Business Clients
+        val bclient1 =
+            BusinessClient(
+                name = "John Doe",
+                email = "john_doe@example.com",
+                venues = mutableSetOf(),
+            )
+        val venue1 =
+            Venue(
+                location = location1,
+                owner = bclient1,
+            )
+        val venue2 =
+            Venue(
+                location = location2,
+                owner = bclient1,
+            )
+        bclient1.venues.add(venue1)
+        bclient1.venues.add(venue2)
+
         return listOf(
             Activity(
                 organizer = jan,
                 title = "Football match",
                 description = "Casual football game in the city park",
-                location = Location(latitude = 52.2297, longitude = 21.0122),
+                location = location1,
                 dateTime = LocalDateTime.now().plusDays(2),
+                host = venue1,
             ).apply {
                 hobbies["Football"]?.let { this.hobbies.add(it) }
                 participants.add(jan)
@@ -133,8 +158,9 @@ class DbDataInitializer(
                 organizer = anna,
                 title = "Chess competition",
                 description = "Monthly chess tournament at the local club",
-                location = Location(longitude = 50.0647, latitude = 19.9450),
+                location = location2,
                 dateTime = LocalDateTime.now().plusDays(5),
+                host = venue2,
             ).apply {
                 hobbies["Chess"]?.let { this.hobbies.add(it) }
                 participants.add(anna)
