@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.time.LocalDateTime
 
+// TODO: Update for new user class
 @Component
 class DbDataInitializer(
     private val userRepository: UserRepository,

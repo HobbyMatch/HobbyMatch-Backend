@@ -1,9 +1,9 @@
 package com.github.kkkubakkk.hobbymatchbackend.security.config
 
 import com.github.kkkubakkk.hobbymatchbackend.security.component.JwtAuthenticationFilter
-import com.github.kkkubakkk.hobbymatchbackend.security.component.OAuth2AuthenticationSuccessHandler
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
@@ -12,9 +12,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 class SecurityConfig(
     private val jwtAuthenticationFilter: JwtAuthenticationFilter,
-    private val oauth2AuthenticationSuccessHandler: OAuth2AuthenticationSuccessHandler,
 ) {
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
@@ -23,16 +23,14 @@ class SecurityConfig(
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { auth ->
                 auth
-                    .requestMatchers("/auth/**", "/oauth2/**", "/hello")
+//                    .anyRequest()
+//                    .permitAll()
+                    .requestMatchers("/api/v1/auth/**")
                     .permitAll()
+                    .requestMatchers("/api/v1/users/**")
+                    .hasAnyRole("USER")
                     .anyRequest()
                     .authenticated()
-            }.oauth2Login { oauth2 ->
-                oauth2
-                    .loginPage("/auth")
-                    .authorizationEndpoint { it.baseUri("/oauth2/authorize") }
-                    .redirectionEndpoint { it.baseUri("/oauth2/callback/*") }
-                    .successHandler(oauth2AuthenticationSuccessHandler)
             }.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
 
         return http.build()
