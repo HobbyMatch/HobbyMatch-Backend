@@ -29,6 +29,8 @@ class SecurityConfig(
                     .permitAll()
                     .requestMatchers("/api/v1/users/**")
                     .hasAnyRole("USER")
+                    .requestMatchers("/api/v1/business/**")
+                    .hasAnyRole("BUSINESS")
                     .anyRequest()
                     .authenticated()
             }.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
