@@ -11,8 +11,13 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.BDDMockito.given
+<<<<<<< Updated upstream
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
+=======
+import org.mockito.BDDMockito.mock
+import org.mockito.BDDMockito.verify
+>>>>>>> Stashed changes
 import java.time.LocalDate
 import java.util.Optional
 
@@ -59,6 +64,10 @@ class UserServiceTest {
 
     @Test
     fun `create user test`() {
+<<<<<<< Updated upstream
+=======
+        // Given
+>>>>>>> Stashed changes
         val createdUser =
             User(
                 firstName = firstName,
@@ -82,7 +91,9 @@ class UserServiceTest {
         given(userRepository.findByEmail(email)).willReturn(Optional.empty())
         given(userRepository.save(createdUser)).willReturn(createdUser)
         given(hobbyRepository.findAllByNameIn(createUserDTO.hobbies.map { it.name })).willReturn(listOf(hobby))
+        // When
         val res = userService.createUser(createUserDTO)
+        // Then
         Assertions.assertEquals(createdUser.toDTO(), res)
         verify(userRepository).findByEmail(email)
         verify(userRepository).save(createdUser)
@@ -92,27 +103,44 @@ class UserServiceTest {
 
     @Test
     fun `verifying if user exists for an existent user`() {
+        // Given
         given(userRepository.findByEmail(email)).willReturn(Optional.of(user))
-        Assertions.assertTrue(userService.userExists(email))
+        // When
+        val res = userService.userExists(email)
+        // Then
+        Assertions.assertTrue(res)
         verify(userRepository).findByEmail(email)
     }
 
     @Test
     fun `verifying if user exists for a non-existent user`() {
+        // Given
         given(userRepository.findByEmail(email)).willReturn(Optional.empty())
-        Assertions.assertFalse(userService.userExists(email))
+        // When
+        val res = userService.userExists(email)
+        // Then
+        Assertions.assertFalse(res)
         verify(userRepository).findByEmail(email)
     }
 
     @Test
     fun `find an OAuth user`() {
+        // Given
         given(userRepository.findByEmail(email)).willReturn(Optional.of(user))
+<<<<<<< Updated upstream
         Assertions.assertEquals(userService.findOrCreateOAuthUser(email, firstName, lastName), user)
+=======
+        // When
+        val foundUser = userService.findOrCreateOAuthUser(email, firstName, lastName)
+        // Then
+        Assertions.assertEquals(user, foundUser)
+>>>>>>> Stashed changes
         verify(userRepository).findByEmail(email)
     }
 
     @Test
     fun `create an OAuth user with a username + counter`() {
+        // Given
         given(userRepository.findByEmail(email)).willReturn(Optional.empty())
         val counter = 1
         val diffUser =
@@ -136,7 +164,10 @@ class UserServiceTest {
                 email = email,
             )
         given(userRepository.save(newUser)).willReturn(newUser)
-        Assertions.assertEquals(newUser, userService.findOrCreateOAuthUser(email, firstName, lastName))
+        // When
+        val createdUser = userService.findOrCreateOAuthUser(email, firstName, lastName)
+        // Then
+        Assertions.assertEquals(newUser, createdUser)
         verify(userRepository).findByEmail(email)
         verify(userRepository).findByUsername(username)
         verify(userRepository).findByUsername(newUsername)
@@ -145,14 +176,23 @@ class UserServiceTest {
 
     @Test
     fun `get an existing user by email`() {
+        // Given
         given(userRepository.findByEmail(email)).willReturn(Optional.of(user))
-        Assertions.assertEquals(user.toDTO(), userService.getUserByEmail(email))
+        // When
+        val res = userService.getUserByEmail(email)
+        // Then
+        Assertions.assertEquals(user.toDTO(), res)
         verify(userRepository).findByEmail(email)
     }
 
     @Test
     fun `exception thrown when getting a non-existent user by email`() {
+        // Given
         given(userRepository.findByEmail(email)).willReturn(Optional.empty())
+<<<<<<< Updated upstream
+=======
+        // Then
+>>>>>>> Stashed changes
         val ex =
             Assertions.assertThrows(IllegalArgumentException::class.java) {
                 userService.getUserByEmail(email)
@@ -163,14 +203,23 @@ class UserServiceTest {
 
     @Test
     fun `get an existing user by username`() {
+        // Given
         given(userRepository.findByUsername(username)).willReturn(Optional.of(user))
-        Assertions.assertEquals(user.toDTO(), userService.getUserByUsername(username))
+        // When
+        val res = userService.getUserByUsername(username)
+        // Then
+        Assertions.assertEquals(user.toDTO(), res)
         verify(userRepository).findByUsername(username)
     }
 
     @Test
     fun `exception thrown when getting a non-existent user by username`() {
+        // Given
         given(userRepository.findByUsername(username)).willReturn(Optional.empty())
+<<<<<<< Updated upstream
+=======
+        // Then
+>>>>>>> Stashed changes
         val ex =
             Assertions.assertThrows(IllegalArgumentException::class.java) {
                 userService.getUserByUsername(username)
@@ -185,9 +234,13 @@ class UserServiceTest {
 
     @Test
     fun `get all users`() {
+        // Given
         val allUsers = listOf(user)
         given(userRepository.findAll()).willReturn(allUsers)
-        Assertions.assertEquals(allUsers.map { it.toDTO() }, userService.getAllUsers())
+        // When
+        val res = userService.getAllUsers()
+        // Then
+        Assertions.assertEquals(allUsers.map { it.toDTO() }, res)
         verify(userRepository).findAll()
     }
 
@@ -198,6 +251,7 @@ class UserServiceTest {
 
     @Test
     fun `activate an existent user`() {
+        // Given
         given(userRepository.findByEmail(email)).willReturn(Optional.of(user))
         val activatedUser =
             User(
@@ -212,13 +266,25 @@ class UserServiceTest {
                 isActive = true,
             )
         given(userRepository.save(activatedUser)).willReturn(activatedUser)
+<<<<<<< Updated upstream
         Assertions.assertEquals(activatedUser.toDTO(), userService.activateUser(email))
+=======
+        // When
+        val res = userService.activateUser(email)
+        // Then
+        Assertions.assertEquals(activatedUser.toDTO(), res)
+>>>>>>> Stashed changes
         verify(userRepository).findByEmail(email)
     }
 
     @Test
     fun `exception thrown when activating a non-existent user`() {
+        // Given
         given(userRepository.findByEmail(email)).willReturn(Optional.empty())
+<<<<<<< Updated upstream
+=======
+        // Then
+>>>>>>> Stashed changes
         val ex =
             Assertions.assertThrows(IllegalArgumentException::class.java) {
                 userService.activateUser(email)
@@ -229,6 +295,7 @@ class UserServiceTest {
 
     @Test
     fun `deactivate an existent user`() {
+        // Given
         given(userRepository.findByEmail(email)).willReturn(Optional.of(user))
         val deactivatedUser =
             User(
@@ -243,13 +310,21 @@ class UserServiceTest {
                 isActive = false,
             )
         given(userRepository.save(deactivatedUser)).willReturn(deactivatedUser)
-        Assertions.assertEquals(deactivatedUser.toDTO(), userService.deactivateUser(email))
+        // When
+        val res = userService.deactivateUser(email)
+        // Then
+        Assertions.assertEquals(deactivatedUser.toDTO(), res)
         verify(userRepository).findByEmail(email)
     }
 
     @Test
     fun `exception thrown when deactivating a non-existent user`() {
+        // Given
         given(userRepository.findByEmail(email)).willReturn(Optional.empty())
+<<<<<<< Updated upstream
+=======
+        // Then
+>>>>>>> Stashed changes
         val ex =
             Assertions.assertThrows(IllegalArgumentException::class.java) {
                 userService.deactivateUser(email)
@@ -260,9 +335,13 @@ class UserServiceTest {
 
     @Test
     fun `get all users for an empty database`() {
+        // Given
         val allUsers = emptyList<User>()
         given(userRepository.findAll()).willReturn(allUsers)
-        Assertions.assertEquals(allUsers.map { it.toDTO() }, userService.getAllUsers())
+        // When
+        val res = userService.getAllUsers()
+        // Then
+        Assertions.assertEquals(allUsers.map { it.toDTO() }, res)
         verify(userRepository).findAll()
     }
 
