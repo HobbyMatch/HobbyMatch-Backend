@@ -1,8 +1,10 @@
 package com.github.kkkubakkk.hobbymatchbackend.venue.model
 
+import com.github.kkkubakkk.hobbymatchbackend.activity.dto.toDTO
 import com.github.kkkubakkk.hobbymatchbackend.activity.model.Activity
 import com.github.kkkubakkk.hobbymatchbackend.bclient.model.BusinessClient
 import com.github.kkkubakkk.hobbymatchbackend.location.model.Location
+import com.github.kkkubakkk.hobbymatchbackend.venue.dto.VenueDTO
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Embedded
@@ -39,4 +41,12 @@ data class Venue(
     @ManyToOne
     @JoinColumn(name = "owner_id", nullable = false)
     val owner: BusinessClient,
-)
+) {
+    fun toDTO(): VenueDTO =
+        VenueDTO(
+            id = this.id,
+            location = this.location,
+            hostedActivities = this.hostedActivities.map { it.toDTO() },
+            owner = this.owner.toDTO(),
+        )
+}

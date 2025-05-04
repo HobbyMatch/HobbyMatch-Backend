@@ -1,7 +1,6 @@
 package com.github.kkkubakkk.hobbymatchbackend.bclient.model
 
 import com.github.kkkubakkk.hobbymatchbackend.bclient.dto.BusinessClientDTO
-import com.github.kkkubakkk.hobbymatchbackend.user.model.User
 import com.github.kkkubakkk.hobbymatchbackend.venue.model.Venue
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
@@ -41,6 +40,13 @@ data class BusinessClient(
     )
     var venues: MutableSet<Venue> = mutableSetOf(),
 ) {
+    fun toDTO(): BusinessClientDTO =
+        BusinessClientDTO(
+            id = this.id,
+            name = this.name,
+            email = this.email,
+            // venues = this.venues.map { it.toDTO() },
+        )
 
     final override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -58,7 +64,7 @@ data class BusinessClient(
                 this.javaClass
             }
         if (thisEffectiveClass != oEffectiveClass) return false
-        other as User
+        other as BusinessClient
         return id == other.id
     }
 

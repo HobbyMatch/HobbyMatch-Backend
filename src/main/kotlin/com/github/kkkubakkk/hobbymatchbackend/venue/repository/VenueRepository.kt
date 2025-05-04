@@ -7,4 +7,6 @@ import java.util.Optional
 
 interface VenueRepository : JpaRepository<Venue, Long> {
     fun findByLocation(location: Location): Optional<Venue>
+
+    fun findAllByIdIn(id: List<Long>): List<Venue>
 }

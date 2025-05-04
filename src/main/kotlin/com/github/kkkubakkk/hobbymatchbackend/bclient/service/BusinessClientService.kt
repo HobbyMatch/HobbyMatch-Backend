@@ -1,11 +1,61 @@
 package com.github.kkkubakkk.hobbymatchbackend.bclient.service
 
+import com.github.kkkubakkk.hobbymatchbackend.bclient.dto.BusinessClientDTO
+import com.github.kkkubakkk.hobbymatchbackend.bclient.dto.UpdateClientDTO
 import com.github.kkkubakkk.hobbymatchbackend.bclient.repository.BusinessClientRepository
+import com.github.kkkubakkk.hobbymatchbackend.venue.dto.VenueDTO
+import com.github.kkkubakkk.hobbymatchbackend.venue.repository.VenueRepository
 import org.springframework.stereotype.Service
 
 @Service
 class BusinessClientService(
-    private val clientRepository: BusinessClientRepository
+    private val clientRepository: BusinessClientRepository,
+    private val venueRepository: VenueRepository,
 ) {
-    fun getClientById(id: Long) = clientRepository.findById(id).toDTO()
+    fun getClientById(id: Long): BusinessClientDTO {
+        val clientOptional = clientRepository.findById(id)
+        require(clientOptional.isPresent) { "Business client not found" }
+        return clientOptional.get().toDTO()
+    }
+
+    fun updateClientById(
+        id: Long,
+        updateClientDTO: UpdateClientDTO,
+    ): BusinessClientDTO {
+        val clientOptional = clientRepository.findById(id)
+        require(clientOptional.isPresent) { "Business client not found" }
+        val client = clientOptional.get()
+//        val newVenues = venueRepository.findAllByIdIn(updateClientDTO.venues.map { it.id })
+//        require(newVenues.size == updateClientDTO.venues.size){"Some specified venues do not exist"}
+//        updateVenues(client, newVenues)
+        client.name = updateClientDTO.name
+        client.email = updateClientDTO.email
+        clientRepository.save(client)
+        return client.toDTO()
+    }
+
+//    private fun updateVenues(
+//        client: BusinessClient,
+//        newVenues: List<Venue>,
+//    ) {
+//        val venuesToRemove = client.venues.filter { it !in newVenues }
+//        venuesToRemove.forEach { venue ->
+//           client.venues.remove(venue)
+//        }
+//
+//        val venuesToAdd = newVenues.filter { it !in client.venues }
+//        venuesToAdd.forEach { venue ->
+//            client.venues.add(venue)
+//        }
+//    }
+    fun getVenueById(id: Long): VenueDTO {
+        val venueOptional = venueRepository.findById(id)
+        require(venueOptional.isPresent) { "Venue not found" }
+        return venueOptional.get().toDTO()
+    }
+//    fun addVenue(createVenueDTO: CreateVenueDTO): VenueDTO {
+//        val venue = Venue(
+//            createVenueDTO.
+//        )
+//    }
 }
