@@ -25,12 +25,9 @@ data class Venue(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", updatable = false, nullable = false)
     val id: Long = 0,
-//    @Column(name = "address", updatable = false, nullable = false, columnDefinition = "NVARCHAR(50)")
-//    val address: String,
     @Embedded
     var location: Location,
     @Column(name = "datetime", nullable = false, columnDefinition = "DATETIME")
-    // One to Many foreign key to the table of activities
     @OneToMany(
         mappedBy = "host",
         cascade = [CascadeType.ALL],

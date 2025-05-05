@@ -12,7 +12,6 @@ import com.github.kkkubakkk.hobbymatchbackend.venue.model.Venue
 import jakarta.transaction.Transactional
 import org.springframework.boot.CommandLineRunner
 import org.springframework.stereotype.Component
-import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Component
@@ -51,20 +50,14 @@ class DbDataInitializer(
         val hobbiesByName = hobbyRepository.findAll().associateBy { it.name }
 
         fun userWithHobbies(
-            firstName: String,
-            lastName: String,
-            username: String,
+            name: String,
             email: String,
-            birthday: String,
             hobbyNames: List<String>,
         ): User {
             val user =
                 User(
-                    firstName = firstName,
-                    lastName = lastName,
-                    username = username,
+                    name = name,
                     email = email,
-                    birthday = LocalDate.parse(birthday),
                 )
 
             hobbyNames.mapNotNull { hobbiesByName[it] }.forEach { hobby ->
@@ -77,35 +70,23 @@ class DbDataInitializer(
 
         return listOf(
             userWithHobbies(
-                "Jan",
-                "Kowalski",
-                "janek123",
+                "Jan Kowalski",
                 "jan.kowalski@example.com",
-                "2000-01-01",
                 listOf("Football", "Chess", "Gym"),
             ),
             userWithHobbies(
-                "Anna",
-                "Nowak",
-                "ania_nowak",
+                "Anna Nowak",
                 "anna.nowak@example.com",
-                "1997-10-14",
                 listOf("Tennis", "Swimming"),
             ),
             userWithHobbies(
-                "Piotr",
-                "Wiśniewski",
-                "piotr_w",
+                "Piotr Wiśniewski",
                 "piotr.wisniewski@example.com",
-                "1990-06-08",
                 listOf("Hiking", "Football"),
             ),
             userWithHobbies(
-                "Katarzyna",
-                "Dąbrowska",
-                "kasiaD",
+                "Katarzyna Dąbrowska",
                 "katarzyna.dabrowska@example.com",
-                "1989-12-17",
                 listOf("Fishing", "Gym", "Running"),
             ),
         )
@@ -115,9 +96,31 @@ class DbDataInitializer(
         val users = userRepository.findAll()
         val hobbies = hobbyRepository.findAll().associateBy { it.name }
 
-        val jan = users.find { it.username == "janek123" }!!
-        val anna = users.find { it.username == "ania_nowak" }!!
-        val piotr = users.find { it.username == "piotr_w" }!!
+        val jan = users.find { it.email == "jan.kowalski@example.com" }!!
+        val anna = users.find { it.email == "anna.nowak@example.com" }!!
+        val piotr = users.find { it.email == "piotr.wisniewski@example.com" }!!
+
+        val location1 = Location(latitude = 52.2297, longitude = 21.0122)
+        val location2 = Location(longitude = 50.0647, latitude = 19.9450)
+        // Creating Business Clients
+        val bclient1 =
+            BusinessClient(
+                name = "John Doe",
+                email = "john_doe@example.com",
+                venues = mutableSetOf(),
+            )
+        val venue1 =
+            Venue(
+                location = location1,
+                owner = bclient1,
+            )
+        val venue2 =
+            Venue(
+                location = location2,
+                owner = bclient1,
+            )
+        bclient1.venues.add(venue1)
+        bclient1.venues.add(venue2)
 
         val location1 = Location(latitude = 52.2297, longitude = 21.0122)
         val location2 = Location(longitude = 50.0647, latitude = 19.9450)

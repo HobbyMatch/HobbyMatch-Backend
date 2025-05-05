@@ -2,6 +2,7 @@ package com.github.kkkubakkk.hobbymatchbackend.bclient.service
 
 import com.github.kkkubakkk.hobbymatchbackend.bclient.dto.BusinessClientDTO
 import com.github.kkkubakkk.hobbymatchbackend.bclient.dto.UpdateClientDTO
+import com.github.kkkubakkk.hobbymatchbackend.bclient.model.BusinessClient
 import com.github.kkkubakkk.hobbymatchbackend.bclient.repository.BusinessClientRepository
 import com.github.kkkubakkk.hobbymatchbackend.venue.dto.CreateVenueDTO
 import com.github.kkkubakkk.hobbymatchbackend.venue.dto.VenueDTO
@@ -11,9 +12,54 @@ import org.springframework.stereotype.Service
 
 @Service
 class BusinessClientService(
-    private val clientRepository: BusinessClientRepository,
-    private val venueRepository: VenueRepository,
+    private val businessClientRepository: BusinessClientRepository,
+    private val venuesRepository: VenueRepository,
 ) {
+    fun createBusinessClient(
+        email: String,
+        name: String,
+    ): BusinessClient {
+        val businessClientOptional = businessClientRepository.findByEmail(email)
+        if (businessClientOptional.isPresent) {
+            return businessClientOptional.get()
+        }
+
+        val businessClient =
+            BusinessClient(
+                name = name,
+                email = email,
+            )
+
+        return businessClientRepository.save(businessClient)
+    }
+
+    fun getVenueById(id: Long): VenueDTO {
+        val venueOptional = venueRepository.findById(id)
+        require(venueOptional.isPresent) { "Venue not found" }
+        return venueOptional.get().toDTO()
+    }
+
+    fun addVenue(createVenueDTO: CreateVenueDTO): VenueDTO {
+        val clientOptional = clientRepository.findById(createVenueDTO.ownerId)
+        require(clientOptional.isPresent) { "Owner not found" }
+        val client = clientOptional.get()
+        val addedVenue =
+            Venue(
+                location = createVenueDTO.location,
+                owner = client,
+                hostedActivities = mutableSetOf(),
+            )
+        client.venues.add(addedVenue)
+        venueRepository.save(addedVenue)
+        return addedVenue.toDTO()
+    }
+
+    fun getMe(id: Long): BusinessClient {
+        val bClient = businessClientRepository.findById(id)
+        require(bClient.isPresent) { "Not found business client: $id" }
+        return bClient.get()
+    }
+
     fun getClientById(id: Long): BusinessClientDTO {
         val clientOptional = clientRepository.findById(id)
         require(clientOptional.isPresent) { "Business client not found" }
@@ -35,48 +81,4 @@ class BusinessClientService(
         clientRepository.save(client)
         return client.toDTO()
     }
-
-//    private fun updateVenues(
-//        client: BusinessClient,
-//        newVenues: List<Venue>,
-//    ) {
-//        val venuesToRemove = client.venues.filter { it !in newVenues }
-//        venuesToRemove.forEach { venue ->
-//           client.venues.remove(venue)
-//        }
-//
-//        val venuesToAdd = newVenues.filter { it !in client.venues }
-//        venuesToAdd.forEach { venue ->
-//            client.venues.add(venue)
-//        }
-//    }
-
-    fun addVenue(createVenueDTO: CreateVenueDTO): VenueDTO {
-        val clientOptional = clientRepository.findById(createVenueDTO.ownerId)
-        require(clientOptional.isPresent) { "Owner not found" }
-        val client = clientOptional.get()
-        val addedVenue =
-            Venue(
-                location = createVenueDTO.location,
-                owner = client,
-                hostedActivities = mutableSetOf(),
-            )
-        client.venues.add(addedVenue)
-        venueRepository.save(addedVenue)
-        return addedVenue.toDTO()
-    }
-
-    fun getVenueById(id: Long): VenueDTO {
-        val venueOptional = venueRepository.findById(id)
-        require(venueOptional.isPresent) { "Venue not found" }
-        return venueOptional.get().toDTO()
-    }
-
-    // fun updateVenue(id: Long, updateVenueDTO: UpdateVenueDTO)
-
-//    fun addVenue(createVenueDTO: CreateVenueDTO): VenueDTO {
-//        val venue = Venue(
-//            createVenueDTO.
-//        )
-//    }
 }
