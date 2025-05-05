@@ -24,17 +24,17 @@ class SecurityConfig(
             .authorizeHttpRequests { auth ->
                 auth
                     // DEBUG ONLY: Remove authentication of all the endpoints
-                    .anyRequest()
-                    .permitAll()
-                // PRODUCTION: Set up authentication for the endpoints
-//                    .requestMatchers("/api/v1/auth/**")
-//                    .permitAll()
-//                    .requestMatchers("/api/v1/users/**")
-//                    .hasAnyRole("USER")
-//                    .requestMatchers("/api/v1/business/**")
-//                    .hasAnyRole("BUSINESS")
 //                    .anyRequest()
-//                    .authenticated()
+//                    .permitAll()
+                    // PRODUCTION: Set up authentication for the endpoints
+                    .requestMatchers("/api/v1/auth/**")
+                    .permitAll()
+                    .requestMatchers("/api/v1/users/**")
+                    .hasAnyRole("USER")
+                    .requestMatchers("/api/v1/business/**")
+                    .hasAnyRole("BUSINESS")
+                    .anyRequest()
+                    .authenticated()
             }.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
 
         return http.build()

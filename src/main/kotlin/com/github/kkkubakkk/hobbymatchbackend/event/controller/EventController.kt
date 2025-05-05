@@ -3,6 +3,7 @@ package com.github.kkkubakkk.hobbymatchbackend.event.controller
 import com.github.kkkubakkk.hobbymatchbackend.event.dto.CreateOrUpdateEventDTO
 import com.github.kkkubakkk.hobbymatchbackend.event.dto.EventDTO
 import com.github.kkkubakkk.hobbymatchbackend.event.service.EventService
+import com.github.kkkubakkk.hobbymatchbackend.security.component.JwtUtils.Companion.getAuthenticatedUserId
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping

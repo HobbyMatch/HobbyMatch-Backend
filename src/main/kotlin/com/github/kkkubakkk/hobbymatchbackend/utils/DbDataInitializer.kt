@@ -1,7 +1,5 @@
 package com.github.kkkubakkk.hobbymatchbackend.utils
 
-import com.github.kkkubakkk.hobbymatchbackend.activity.model.Activity
-import com.github.kkkubakkk.hobbymatchbackend.activity.repository.ActivityRepository
 import com.github.kkkubakkk.hobbymatchbackend.bclient.model.BusinessClient
 import com.github.kkkubakkk.hobbymatchbackend.event.model.Event
 import com.github.kkkubakkk.hobbymatchbackend.event.repository.EventRepository
@@ -124,27 +122,27 @@ class DbDataInitializer(
         bclient1.venues.add(venue1)
         bclient1.venues.add(venue2)
 
-        val location1 = Location(latitude = 52.2297, longitude = 21.0122)
-        val location2 = Location(longitude = 50.0647, latitude = 19.9450)
+        val location12 = Location(latitude = 52.2297, longitude = 21.0122)
+        val location22 = Location(longitude = 50.0647, latitude = 19.9450)
         // Creating Business Clients
-        val bclient1 =
+        val bclient12 =
             BusinessClient(
                 name = "John Doe",
                 email = "john_doe@example.com",
                 venues = mutableSetOf(),
             )
-        val venue1 =
+        val venue12 =
             Venue(
-                location = location1,
-                owner = bclient1,
+                location = location12,
+                owner = bclient12,
             )
-        val venue2 =
+        val venue22 =
             Venue(
-                location = location2,
-                owner = bclient1,
+                location = location22,
+                owner = bclient12,
             )
-        bclient1.venues.add(venue1)
-        bclient1.venues.add(venue2)
+        bclient12.venues.add(venue12)
+        bclient12.venues.add(venue22)
 
         return listOf(
             Event(

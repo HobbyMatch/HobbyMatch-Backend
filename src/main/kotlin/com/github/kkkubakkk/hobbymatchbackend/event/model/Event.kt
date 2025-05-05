@@ -35,11 +35,9 @@ data class Event(
         inverseJoinColumns = [JoinColumn(name = "user_id")],
     )
     var participants: MutableSet<User> = mutableSetOf(),
-    // Adding the Many to One foreign key to the table venues
     @ManyToOne
-    @JoinColumn(name = "host_id", nullable = false)
-    val host: Venue,
-    //
+    @JoinColumn(name = "host_id", nullable = true)
+    val host: Venue? = null,
     @Column(name = "title", nullable = false, columnDefinition = "NVARCHAR(100)")
     var title: String,
     @Column(name = "description", nullable = true, columnDefinition = "NVARCHAR(MAX)")

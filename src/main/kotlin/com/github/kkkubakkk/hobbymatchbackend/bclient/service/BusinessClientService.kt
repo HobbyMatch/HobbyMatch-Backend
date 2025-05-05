@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service
 @Service
 class BusinessClientService(
     private val businessClientRepository: BusinessClientRepository,
-    private val venuesRepository: VenueRepository,
+    private val venueRepository: VenueRepository,
 ) {
     fun createBusinessClient(
         email: String,
@@ -40,14 +40,14 @@ class BusinessClientService(
     }
 
     fun addVenue(createVenueDTO: CreateVenueDTO): VenueDTO {
-        val clientOptional = clientRepository.findById(createVenueDTO.ownerId)
+        val clientOptional = businessClientRepository.findById(createVenueDTO.ownerId)
         require(clientOptional.isPresent) { "Owner not found" }
         val client = clientOptional.get()
         val addedVenue =
             Venue(
                 location = createVenueDTO.location,
                 owner = client,
-                hostedActivities = mutableSetOf(),
+                hostedEvents = mutableSetOf(),
             )
         client.venues.add(addedVenue)
         venueRepository.save(addedVenue)
@@ -61,7 +61,7 @@ class BusinessClientService(
     }
 
     fun getClientById(id: Long): BusinessClientDTO {
-        val clientOptional = clientRepository.findById(id)
+        val clientOptional = businessClientRepository.findById(id)
         require(clientOptional.isPresent) { "Business client not found" }
         return clientOptional.get().toDTO()
     }
@@ -70,7 +70,7 @@ class BusinessClientService(
         id: Long,
         updateClientDTO: UpdateClientDTO,
     ): BusinessClientDTO {
-        val clientOptional = clientRepository.findById(id)
+        val clientOptional = businessClientRepository.findById(id)
         require(clientOptional.isPresent) { "Business client not found" }
         val client = clientOptional.get()
 //        val newVenues = venueRepository.findAllByIdIn(updateClientDTO.venues.map { it.id })
@@ -78,7 +78,7 @@ class BusinessClientService(
 //        updateVenues(client, newVenues)
         client.name = updateClientDTO.name
         client.email = updateClientDTO.email
-        clientRepository.save(client)
+        businessClientRepository.save(client)
         return client.toDTO()
     }
 }

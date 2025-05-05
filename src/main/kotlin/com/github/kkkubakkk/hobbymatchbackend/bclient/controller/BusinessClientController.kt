@@ -4,11 +4,11 @@ import com.github.kkkubakkk.hobbymatchbackend.bclient.dto.BusinessClientDTO
 import com.github.kkkubakkk.hobbymatchbackend.bclient.dto.UpdateClientDTO
 import com.github.kkkubakkk.hobbymatchbackend.bclient.dto.toDTO
 import com.github.kkkubakkk.hobbymatchbackend.bclient.service.BusinessClientService
+import com.github.kkkubakkk.hobbymatchbackend.security.component.JwtUtils.Companion.getAuthenticatedUserId
 import com.github.kkkubakkk.hobbymatchbackend.venue.dto.CreateVenueDTO
 import com.github.kkkubakkk.hobbymatchbackend.venue.dto.VenueDTO
-import org.springframework.http.HttpStatus
-import com.github.kkkubakkk.hobbymatchbackend.security.component.JwtUtils.Companion.getAuthenticatedUserId
 import org.slf4j.LoggerFactory
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -25,6 +25,7 @@ class BusinessClientController(
     private val clientService: BusinessClientService,
 ) {
     private val logger = LoggerFactory.getLogger(BusinessClientController::class.java)
+
     @GetMapping("/{clientId}")
     fun getBusinessClient(
         @PathVariable clientId: Long,
@@ -46,7 +47,7 @@ class BusinessClientController(
             return ResponseEntity.notFound().build()
         }
     }
-        
+
     @PutMapping("/{clientId}")
     fun updateBusinessClient(
         @PathVariable clientId: Long,
