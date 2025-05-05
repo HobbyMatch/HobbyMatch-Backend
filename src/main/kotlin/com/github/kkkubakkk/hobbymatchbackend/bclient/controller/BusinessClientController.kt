@@ -41,7 +41,7 @@ class BusinessClientController(
             ResponseEntity.status(HttpStatus.NOT_FOUND).build()
         }
 
-    @PostMapping("business/venue/addVenue")
+    @PostMapping("/business/venue/addVenue")
     fun addVenue(
         @RequestBody createVenueDTO: CreateVenueDTO,
     ): ResponseEntity<VenueDTO> =
@@ -51,7 +51,7 @@ class BusinessClientController(
             ResponseEntity.status(HttpStatus.NOT_FOUND).build()
         }
 
-    @GetMapping("business/venue/{venueId}")
+    @GetMapping("/business/venue/{venueId}")
     fun getVenue(
         @PathVariable venueId: Long,
     ): ResponseEntity<VenueDTO> =

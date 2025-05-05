@@ -72,6 +72,19 @@ class BusinessClientService(
         return venueOptional.get().toDTO()
     }
 
+    fun removeVenueById(id: Long) {
+        val venueOptional = venueRepository.findById(id)
+        if (venueOptional.isEmpty) {
+            return
+        }
+        val venue = venueOptional.get()
+        val clientOptional = clientRepository.findById(venue.owner.id)
+        require(clientOptional.isPresent) { "Owner not found" }
+        val client = clientOptional.get()
+        client.venues.remove(venue)
+        venueRepository.delete(venue)
+    }
+
     // fun updateVenue(id: Long, updateVenueDTO: UpdateVenueDTO)
 
 //    fun addVenue(createVenueDTO: CreateVenueDTO): VenueDTO {

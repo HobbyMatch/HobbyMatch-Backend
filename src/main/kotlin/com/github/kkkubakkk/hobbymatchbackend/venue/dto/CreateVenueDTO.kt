@@ -5,7 +5,7 @@ import com.github.kkkubakkk.hobbymatchbackend.location.model.Location
 
 data class CreateVenueDTO(
     val location: Location,
-    val hostedActivities: List<ActivityDTO>,
+    val hostedActivities: List<ActivityDTO> = emptyList(),
     val ownerId: Long,
     // val owner: BusinessClientDTO,
 )
