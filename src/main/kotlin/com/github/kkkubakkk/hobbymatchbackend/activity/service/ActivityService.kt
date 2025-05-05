@@ -8,7 +8,6 @@ import com.github.kkkubakkk.hobbymatchbackend.activity.dto.toDTO
 import com.github.kkkubakkk.hobbymatchbackend.activity.model.Activity
 import com.github.kkkubakkk.hobbymatchbackend.activity.repository.ActivityRepository
 import com.github.kkkubakkk.hobbymatchbackend.hobby.repository.HobbyRepository
-import com.github.kkkubakkk.hobbymatchbackend.location.model.Location
 import com.github.kkkubakkk.hobbymatchbackend.user.repository.UserRepository
 import com.github.kkkubakkk.hobbymatchbackend.venue.repository.VenueRepository
 import org.springframework.stereotype.Service
@@ -25,7 +24,7 @@ class ActivityService(
     fun createActivity(createActivityDTO: CreateActivityDTO): ActivityDTO {
         val organizer = userRepository.findByUsername(createActivityDTO.organizerUsername)
         require(!organizer.isPresent) { "User with this username doesn't exist" }
-        val host = venueRepository.findByLocation(createActivityDTO.hostLocation)
+        val host = venueRepository.findByLocation(createActivityDTO.location)
         require(!host.isPresent) { "Venue in chosen location does not exist" }
         val hobbies = hobbyRepository.findAllByNameIn(createActivityDTO.hobbies.map { it.name })
 
@@ -34,7 +33,7 @@ class ActivityService(
                 organizer = organizer.get(),
                 title = createActivityDTO.title,
                 description = createActivityDTO.description,
-                location = Location(longitude = createActivityDTO.longitude, latitude = createActivityDTO.latitude),
+                location = createActivityDTO.location,
                 dateTime = LocalDateTime.parse(createActivityDTO.datetime),
                 hobbies = hobbies.toMutableSet(),
                 host = host.get(),
@@ -44,7 +43,10 @@ class ActivityService(
         for (hobby in hobbies) {
             hobby.activities.add(activity)
         }
-
+        // adding activity to the venue
+        val venue = host.get()
+        venue.hostedActivities.add(activity)
+        //
         activityRepository.save(activity)
 
         return activity.toDTO()
@@ -72,11 +74,7 @@ class ActivityService(
         val activityEntity = activity.get()
         activityEntity.title = updateActivityDTO.title
         activityEntity.description = updateActivityDTO.description
-        activityEntity.location =
-            Location(
-                longitude = updateActivityDTO.longitude,
-                latitude = updateActivityDTO.latitude,
-            )
+        activityEntity.location = updateActivityDTO.location
         activityEntity.dateTime = LocalDateTime.parse(updateActivityDTO.datetime)
 
         // Update hobbies
@@ -119,6 +117,11 @@ class ActivityService(
 
         val activityEntity = activity.get()
 
+        // verify presence of the venue hosting the activity
+        val host = venueRepository.findByLocation(activityEntity.location)
+        require(host.isPresent) { "Hosting venue not found" }
+        val venue = host.get()
+
         // Remove from participants
         activityEntity.participants.forEach {
             it.participatedActivities.remove(activityEntity)
@@ -131,6 +134,9 @@ class ActivityService(
 
         // Remove from organizer
         activityEntity.organizer.organizedActivities.remove(activityEntity)
+
+        // Remove from venue
+        venue.hostedActivities.remove(activityEntity)
 
         // Delete the activity
         activityRepository.delete(activityEntity)

@@ -4,6 +4,7 @@ import com.github.kkkubakkk.hobbymatchbackend.bclient.dto.UpdateClientDTO
 import com.github.kkkubakkk.hobbymatchbackend.bclient.model.BusinessClient
 import com.github.kkkubakkk.hobbymatchbackend.bclient.repository.BusinessClientRepository
 import com.github.kkkubakkk.hobbymatchbackend.location.model.Location
+import com.github.kkkubakkk.hobbymatchbackend.venue.dto.CreateVenueDTO
 import com.github.kkkubakkk.hobbymatchbackend.venue.model.Venue
 import com.github.kkkubakkk.hobbymatchbackend.venue.repository.VenueRepository
 import org.junit.jupiter.api.Assertions
@@ -30,7 +31,7 @@ class BusinessClientServiceTest {
         )
     val venue =
         Venue(
-            id = 3,
+            id = 0,
             location =
                 Location(
                     latitude = 22.3,
@@ -110,6 +111,43 @@ class BusinessClientServiceTest {
     }
 
     @Test
+    fun `add venue for existing client`() {
+        // Given
+        val createVenueDTO =
+            CreateVenueDTO(
+                venue.location,
+                ownerId = venue.owner.id,
+                hostedActivities = emptyList(),
+            )
+        given(clientRepository.findById(id)).willReturn(Optional.of(client))
+        // When
+        val res = clientService.addVenue(createVenueDTO)
+        // Then
+        Assertions.assertEquals(venue.toDTO(), res)
+        verify(clientRepository).findById(id)
+    }
+
+    @Test
+    fun `add venue for non-existent client`() {
+        // Given
+        val createVenueDTO =
+            CreateVenueDTO(
+                venue.location,
+                ownerId = venue.owner.id,
+                hostedActivities = emptyList(),
+            )
+        given(clientRepository.findById(id)).willReturn(Optional.empty())
+        // When
+        val ex =
+            Assertions.assertThrows(IllegalArgumentException::class.java) {
+                clientService.addVenue(createVenueDTO)
+            }
+        // Then
+        Assertions.assertEquals("Owner not found", ex.message)
+        verify(clientRepository).findById(id)
+    }
+
+    @Test
     fun `get an existing venue`() {
         // Given
         given(venueRepository.findById(id)).willReturn(Optional.of(venue))
@@ -121,13 +159,14 @@ class BusinessClientServiceTest {
     }
 
     @Test
-    fun `get a non-existant venue`() {
+    fun `get a non-existent venue`() {
         // Given
-        given(venueRepository.findById(id)).willReturn(Optional.empty())
+        val venueId = 4L
+        given(venueRepository.findById(venueId)).willReturn(Optional.empty())
         // When
-        val ex = Assertions.assertThrows(IllegalArgumentException::class.java) { clientService.getVenueById(id) }
+        val ex = Assertions.assertThrows(IllegalArgumentException::class.java) { clientService.getVenueById(venueId) }
         // Then
         Assertions.assertEquals("Venue not found", ex.message)
-        verify(venueRepository).findById(id)
+        verify(venueRepository).findById(venueId)
     }
 }

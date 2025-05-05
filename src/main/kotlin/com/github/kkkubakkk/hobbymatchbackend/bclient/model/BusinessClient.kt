@@ -45,7 +45,7 @@ data class BusinessClient(
             id = this.id,
             name = this.name,
             email = this.email,
-            // venues = this.venues.map { it.toDTO() },
+            venues = this.venues.map { it.toDTO() },
         )
 
     final override fun equals(other: Any?): Boolean {

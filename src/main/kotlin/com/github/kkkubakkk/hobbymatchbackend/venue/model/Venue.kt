@@ -47,6 +47,6 @@ data class Venue(
             id = this.id,
             location = this.location,
             hostedActivities = this.hostedActivities.map { it.toDTO() },
-            owner = this.owner.toDTO(),
+            ownerId = this.owner.id,
         )
 }

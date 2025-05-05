@@ -3,11 +3,13 @@ package com.github.kkkubakkk.hobbymatchbackend.bclient.controller
 import com.github.kkkubakkk.hobbymatchbackend.bclient.dto.BusinessClientDTO
 import com.github.kkkubakkk.hobbymatchbackend.bclient.dto.UpdateClientDTO
 import com.github.kkkubakkk.hobbymatchbackend.bclient.service.BusinessClientService
+import com.github.kkkubakkk.hobbymatchbackend.venue.dto.CreateVenueDTO
 import com.github.kkkubakkk.hobbymatchbackend.venue.dto.VenueDTO
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -35,6 +37,16 @@ class BusinessClientController(
     ): ResponseEntity<BusinessClientDTO> =
         try {
             ResponseEntity.ok(clientService.updateClientById(clientId, updateClientDTO))
+        } catch (ex: IllegalArgumentException) {
+            ResponseEntity.status(HttpStatus.NOT_FOUND).build()
+        }
+
+    @PostMapping("business/venue/addVenue")
+    fun addVenue(
+        @RequestBody createVenueDTO: CreateVenueDTO,
+    ): ResponseEntity<VenueDTO> =
+        try {
+            ResponseEntity.ok(clientService.addVenue(createVenueDTO))
         } catch (ex: IllegalArgumentException) {
             ResponseEntity.status(HttpStatus.NOT_FOUND).build()
         }

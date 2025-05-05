@@ -3,7 +3,9 @@ package com.github.kkkubakkk.hobbymatchbackend.bclient.service
 import com.github.kkkubakkk.hobbymatchbackend.bclient.dto.BusinessClientDTO
 import com.github.kkkubakkk.hobbymatchbackend.bclient.dto.UpdateClientDTO
 import com.github.kkkubakkk.hobbymatchbackend.bclient.repository.BusinessClientRepository
+import com.github.kkkubakkk.hobbymatchbackend.venue.dto.CreateVenueDTO
 import com.github.kkkubakkk.hobbymatchbackend.venue.dto.VenueDTO
+import com.github.kkkubakkk.hobbymatchbackend.venue.model.Venue
 import com.github.kkkubakkk.hobbymatchbackend.venue.repository.VenueRepository
 import org.springframework.stereotype.Service
 
@@ -48,11 +50,30 @@ class BusinessClientService(
 //            client.venues.add(venue)
 //        }
 //    }
+
+    fun addVenue(createVenueDTO: CreateVenueDTO): VenueDTO {
+        val clientOptional = clientRepository.findById(createVenueDTO.ownerId)
+        require(clientOptional.isPresent) { "Owner not found" }
+        val client = clientOptional.get()
+        val addedVenue =
+            Venue(
+                location = createVenueDTO.location,
+                owner = client,
+                hostedActivities = mutableSetOf(),
+            )
+        client.venues.add(addedVenue)
+        venueRepository.save(addedVenue)
+        return addedVenue.toDTO()
+    }
+
     fun getVenueById(id: Long): VenueDTO {
         val venueOptional = venueRepository.findById(id)
         require(venueOptional.isPresent) { "Venue not found" }
         return venueOptional.get().toDTO()
     }
+
+    // fun updateVenue(id: Long, updateVenueDTO: UpdateVenueDTO)
+
 //    fun addVenue(createVenueDTO: CreateVenueDTO): VenueDTO {
 //        val venue = Venue(
 //            createVenueDTO.
