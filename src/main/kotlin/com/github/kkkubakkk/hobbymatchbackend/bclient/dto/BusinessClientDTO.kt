@@ -3,6 +3,7 @@ package com.github.kkkubakkk.hobbymatchbackend.bclient.dto
 import com.github.kkkubakkk.hobbymatchbackend.bclient.model.BusinessClient
 import com.github.kkkubakkk.hobbymatchbackend.venue.dto.VenueInfoDTO
 import com.github.kkkubakkk.hobbymatchbackend.venue.dto.toInfoDTO
+import com.github.kkkubakkk.hobbymatchbackend.venue.dto.VenueDTO
 
 data class BusinessClientDTO(
     val id: Long,

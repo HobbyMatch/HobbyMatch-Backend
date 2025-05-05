@@ -1,5 +1,7 @@
 package com.github.kkkubakkk.hobbymatchbackend.bclient.model
 
+import com.github.kkkubakkk.hobbymatchbackend.bclient.dto.BusinessClientDTO
+import com.github.kkkubakkk.hobbymatchbackend.venue.dto.toInfoDTO
 import com.github.kkkubakkk.hobbymatchbackend.venue.model.Venue
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
@@ -29,4 +31,12 @@ data class BusinessClient(
         fetch = FetchType.LAZY,
     )
     var venues: MutableSet<Venue> = mutableSetOf(),
-)
+) {
+    fun toDTO(): BusinessClientDTO =
+        BusinessClientDTO(
+            id = this.id,
+            name = this.name,
+            email = this.email,
+            venues = this.venues.map { it.toInfoDTO() },
+        )
+}
