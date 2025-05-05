@@ -31,7 +31,7 @@ class UserServiceTest {
             id = 1L,
             name = "Volleyball",
             users = mutableSetOf(),
-            activities = mutableSetOf(),
+            events = mutableSetOf(),
         )
     private val birthday = LocalDate.of(1989, 8, 19)
     private val bio = "just another user bio..."

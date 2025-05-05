@@ -1,6 +1,6 @@
 package com.github.kkkubakkk.hobbymatchbackend.user.model
 
-import com.github.kkkubakkk.hobbymatchbackend.activity.model.Activity
+import com.github.kkkubakkk.hobbymatchbackend.event.model.Event
 import com.github.kkkubakkk.hobbymatchbackend.hobby.model.Hobby
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
@@ -49,9 +49,9 @@ data class User(
         orphanRemoval = true,
         fetch = FetchType.LAZY,
     )
-    var organizedActivities: MutableSet<Activity> = mutableSetOf(),
+    var organizedEvents: MutableSet<Event> = mutableSetOf(),
     @ManyToMany(mappedBy = "participants")
-    var participatedActivities: MutableSet<Activity> = mutableSetOf(),
+    var participatedEvents: MutableSet<Event> = mutableSetOf(),
     @Column(name = "is_active", nullable = false)
     var isActive: Boolean = true,
 ) {
