@@ -1,4 +1,4 @@
-package com.github.kkkubakkk.hobbymatchbackend.activity.model
+package com.github.kkkubakkk.hobbymatchbackend.event.model
 
 import com.github.kkkubakkk.hobbymatchbackend.hobby.model.Hobby
 import com.github.kkkubakkk.hobbymatchbackend.location.model.Location
@@ -19,8 +19,8 @@ import jakarta.persistence.Table
 import java.time.LocalDateTime
 
 @Entity
-@Table(name = "activities")
-data class Activity(
+@Table(name = "events")
+data class Event(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", updatable = false, nullable = false)
@@ -30,8 +30,8 @@ data class Activity(
     val organizer: User,
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-        name = "activities_participants",
-        joinColumns = [JoinColumn(name = "activity_id")],
+        name = "events_participants",
+        joinColumns = [JoinColumn(name = "event_id")],
         inverseJoinColumns = [JoinColumn(name = "user_id")],
     )
     var participants: MutableSet<User> = mutableSetOf(),
@@ -46,13 +46,21 @@ data class Activity(
     var description: String? = null,
     @Embedded
     var location: Location,
-    @Column(name = "datetime", nullable = false, columnDefinition = "DATETIME")
-    var dateTime: LocalDateTime,
+    @Column(name = "startTime", nullable = false, columnDefinition = "DATETIME")
+    var startTime: LocalDateTime,
+    @Column(name = "endTime", nullable = false, columnDefinition = "DATETIME")
+    var endTime: LocalDateTime,
+    @Column(name = "price", nullable = false, columnDefinition = "MONEY")
+    var price: Double,
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-        name = "activities_hobbies",
-        joinColumns = [JoinColumn(name = "activity_id")],
+        name = "events_hobbies",
+        joinColumns = [JoinColumn(name = "event_id")],
         inverseJoinColumns = [JoinColumn(name = "hobby_id")],
     )
     var hobbies: MutableSet<Hobby> = mutableSetOf(),
+    @Column(name = "minUsers", nullable = false, columnDefinition = "INT")
+    var minUsers: Int,
+    @Column(name = "maxUsers", nullable = false, columnDefinition = "INT")
+    var maxUsers: Int,
 )

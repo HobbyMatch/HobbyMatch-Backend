@@ -3,6 +3,8 @@ package com.github.kkkubakkk.hobbymatchbackend.utils
 import com.github.kkkubakkk.hobbymatchbackend.activity.model.Activity
 import com.github.kkkubakkk.hobbymatchbackend.activity.repository.ActivityRepository
 import com.github.kkkubakkk.hobbymatchbackend.bclient.model.BusinessClient
+import com.github.kkkubakkk.hobbymatchbackend.event.model.Event
+import com.github.kkkubakkk.hobbymatchbackend.event.repository.EventRepository
 import com.github.kkkubakkk.hobbymatchbackend.hobby.model.Hobby
 import com.github.kkkubakkk.hobbymatchbackend.hobby.repository.HobbyRepository
 import com.github.kkkubakkk.hobbymatchbackend.location.model.Location
@@ -18,7 +20,7 @@ import java.time.LocalDateTime
 class DbDataInitializer(
     private val userRepository: UserRepository,
     private val hobbyRepository: HobbyRepository,
-    private val activityRepository: ActivityRepository,
+    private val eventRepository: EventRepository,
 ) : CommandLineRunner {
     @Transactional
     override fun run(vararg args: String?) {
@@ -28,8 +30,8 @@ class DbDataInitializer(
         if (userRepository.count() == 0L) {
             userRepository.saveAll(createUsers())
         }
-        if (activityRepository.count() == 0L) {
-            activityRepository.saveAll(createActivities())
+        if (eventRepository.count() == 0L) {
+            eventRepository.saveAll(createEvents())
         }
     }
 
@@ -92,7 +94,7 @@ class DbDataInitializer(
         )
     }
 
-    private fun createActivities(): List<Activity> {
+    private fun createEvents(): List<Event> {
         val users = userRepository.findAll()
         val hobbies = hobbyRepository.findAll().associateBy { it.name }
 
@@ -145,25 +147,31 @@ class DbDataInitializer(
         bclient1.venues.add(venue2)
 
         return listOf(
-            Activity(
+            Event(
                 organizer = jan,
                 title = "Football match",
                 description = "Casual football game in the city park",
-                location = location1,
-                dateTime = LocalDateTime.now().plusDays(2),
-                host = venue1,
+                location = Location(latitude = 52.2297, longitude = 21.0122),
+                startTime = LocalDateTime.now().plusDays(2),
+                endTime = LocalDateTime.now().plusDays(3),
+                price = 15.0,
+                minUsers = 20,
+                maxUsers = 35,
             ).apply {
                 hobbies["Football"]?.let { this.hobbies.add(it) }
                 participants.add(jan)
                 participants.add(piotr)
             },
-            Activity(
+            Event(
                 organizer = anna,
                 title = "Chess competition",
                 description = "Monthly chess tournament at the local club",
-                location = location2,
-                dateTime = LocalDateTime.now().plusDays(5),
-                host = venue2,
+                location = Location(longitude = 50.0647, latitude = 19.9450),
+                startTime = LocalDateTime.now().plusDays(5),
+                endTime = LocalDateTime.now().plusDays(6),
+                price = 0.0,
+                minUsers = 10,
+                maxUsers = 50,
             ).apply {
                 hobbies["Chess"]?.let { this.hobbies.add(it) }
                 participants.add(anna)
