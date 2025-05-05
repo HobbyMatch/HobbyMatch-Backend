@@ -6,6 +6,7 @@ import com.github.kkkubakkk.hobbymatchbackend.user.dto.UserDTO
 import com.github.kkkubakkk.hobbymatchbackend.user.dto.toDTO
 import com.github.kkkubakkk.hobbymatchbackend.user.service.UserService
 import org.slf4j.LoggerFactory
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -31,7 +32,7 @@ class UserController(
             val authUserId = getAuthenticatedUserId()
             if (authUserId != userId) {
                 logger.warn("User ID mismatch: Authenticated user ID: $authUserId, Requested user ID: $userId")
-                return ResponseEntity.status(403).build()
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build()
             }
 
             val user = userService.getUser(userId)
@@ -53,7 +54,7 @@ class UserController(
             val authUserId = getAuthenticatedUserId()
             if (authUserId != userId) {
                 logger.warn("User ID mismatch: Authenticated user ID: $authUserId, Requested user ID: $userId")
-                return ResponseEntity.status(403).build()
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build()
             }
 
             val updatedUser = userService.updateUser(userId, userDto)

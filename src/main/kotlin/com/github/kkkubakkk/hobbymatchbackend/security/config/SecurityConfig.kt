@@ -23,16 +23,18 @@ class SecurityConfig(
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { auth ->
                 auth
-//                    .anyRequest()
-//                    .permitAll()
-                    .requestMatchers("/api/v1/auth/**")
-                    .permitAll()
-                    .requestMatchers("/api/v1/users/**")
-                    .hasAnyRole("USER")
-                    .requestMatchers("/api/v1/business/**")
-                    .hasAnyRole("BUSINESS")
+                    // DEBUG ONLY: Remove authentication of all the endpoints
                     .anyRequest()
-                    .authenticated()
+                    .permitAll()
+                // PRODUCTION: Set up authentication for the endpoints
+//                    .requestMatchers("/api/v1/auth/**")
+//                    .permitAll()
+//                    .requestMatchers("/api/v1/users/**")
+//                    .hasAnyRole("USER")
+//                    .requestMatchers("/api/v1/business/**")
+//                    .hasAnyRole("BUSINESS")
+//                    .anyRequest()
+//                    .authenticated()
             }.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
 
         return http.build()

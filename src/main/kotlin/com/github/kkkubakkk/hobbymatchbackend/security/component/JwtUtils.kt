@@ -16,10 +16,10 @@ class JwtUtils {
     private lateinit var jwtSecret: String
 
     @Value("\${jwt.access.expiration}")
-    private val accessJwtExpirationMs: Long = 3600000
+    private val accessJwtExpirationMs: Long = DEFAULT_ACCESS_EXPIRATION
 
     @Value("\${jwt.refresh.expiration}")
-    private val refreshJwtExpirationMs: Long = 864000000
+    private val refreshJwtExpirationMs: Long = DEFAULT_REFRESH_EXPIRATION
 
     fun generateAccessToken(
         userId: Long,
@@ -128,6 +128,8 @@ class JwtUtils {
 
     companion object {
         private const val START_INDEX = 7
+        private const val DEFAULT_ACCESS_EXPIRATION = 3600000L
+        private const val DEFAULT_REFRESH_EXPIRATION = 864000000L
 
         @JvmStatic
         fun getAuthenticatedUserId(): Long {

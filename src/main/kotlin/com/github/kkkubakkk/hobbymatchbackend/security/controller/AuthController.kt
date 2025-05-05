@@ -32,7 +32,6 @@ class AuthController(
     @Value("\${spring.security.oauth2.client.registration.google.client-id}")
     private lateinit var googleClientId: String
 
-    // TODO: Update to search for both business and normal users
     @GetMapping("/me")
     fun getCurrentUser(): ResponseEntity<UserDTO> {
         try {
