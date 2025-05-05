@@ -1,6 +1,7 @@
 package com.github.kkkubakkk.hobbymatchbackend.bclient.model
 
 import com.github.kkkubakkk.hobbymatchbackend.bclient.dto.BusinessClientDTO
+import com.github.kkkubakkk.hobbymatchbackend.venue.dto.toInfoDTO
 import com.github.kkkubakkk.hobbymatchbackend.venue.model.Venue
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
@@ -11,7 +12,6 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
-import org.hibernate.proxy.HibernateProxy
 
 @Entity
 @Table(name = "bclients")
@@ -37,6 +37,6 @@ data class BusinessClient(
             id = this.id,
             name = this.name,
             email = this.email,
-            venues = this.venues.map { it.toDTO() },
+            venues = this.venues.map { it.toInfoDTO() },
         )
 }
