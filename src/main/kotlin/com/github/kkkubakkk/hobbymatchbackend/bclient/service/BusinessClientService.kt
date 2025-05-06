@@ -46,6 +46,7 @@ class BusinessClientService(
         val client = clientOptional.get()
         val addedVenue =
             Venue(
+                name = createVenueDTO.name,
                 location = createVenueDTO.location,
                 owner = client,
                 hostedEvents = mutableSetOf(),

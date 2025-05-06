@@ -5,6 +5,7 @@ import com.github.kkkubakkk.hobbymatchbackend.location.model.Location
 
 data class VenueDTO(
     val id: Long,
+    val name: String,
     val location: Location,
     val hostedActivities: List<EventDTO>,
     val ownerId: Long,

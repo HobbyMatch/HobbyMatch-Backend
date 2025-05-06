@@ -111,11 +111,13 @@ class DbDataInitializer(
             )
         val venue1 =
             Venue(
+                name = "Stadium",
                 location = location1,
                 owner = bclient1,
             )
         val venue2 =
             Venue(
+                name = "Pool",
                 location = location2,
                 owner = bclient1,
             )

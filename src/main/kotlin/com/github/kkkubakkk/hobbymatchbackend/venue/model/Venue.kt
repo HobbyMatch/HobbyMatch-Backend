@@ -25,6 +25,8 @@ data class Venue(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", updatable = false, nullable = false)
     val id: Long = 0,
+    @Column(name="name", nullable = false, columnDefinition = "NVARCHAR(50)")
+    val name: String,
     @Embedded
     var location: Location,
     @Column(name = "datetime", nullable = false, columnDefinition = "DATETIME")
@@ -42,6 +44,7 @@ data class Venue(
     fun toDTO(): VenueDTO =
         VenueDTO(
             id = this.id,
+            name = this.name,
             location = this.location,
             hostedActivities = this.hostedEvents.map { it.toDTO() },
             ownerId = this.owner.id,

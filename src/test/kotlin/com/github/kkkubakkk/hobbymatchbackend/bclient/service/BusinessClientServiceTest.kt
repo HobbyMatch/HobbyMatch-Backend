@@ -32,6 +32,7 @@ class BusinessClientServiceTest {
     val venue =
         Venue(
             id = 0,
+            name = "Stadium",
             location =
                 Location(
                     latitude = 22.3,
@@ -51,6 +52,13 @@ class BusinessClientServiceTest {
             name = updatedClient.name,
             email = updatedClient.email,
             // venues = updatedClient.venues.map { it.toDTO() }
+        )
+    val createVenueDTO =
+        CreateVenueDTO(
+            name = venue.name,
+            location = venue.location,
+            ownerId = venue.owner.id,
+            hostedActivities = emptyList(),
         )
 
     @BeforeEach
@@ -113,12 +121,6 @@ class BusinessClientServiceTest {
     @Test
     fun `add venue for existing client`() {
         // Given
-        val createVenueDTO =
-            CreateVenueDTO(
-                venue.location,
-                ownerId = venue.owner.id,
-                hostedActivities = emptyList(),
-            )
         given(clientRepository.findById(id)).willReturn(Optional.of(client))
         // When
         val res = clientService.addVenue(createVenueDTO)
@@ -130,12 +132,6 @@ class BusinessClientServiceTest {
     @Test
     fun `add venue for non-existent client`() {
         // Given
-        val createVenueDTO =
-            CreateVenueDTO(
-                venue.location,
-                ownerId = venue.owner.id,
-                hostedActivities = emptyList(),
-            )
         given(clientRepository.findById(id)).willReturn(Optional.empty())
         // When
         val ex =
