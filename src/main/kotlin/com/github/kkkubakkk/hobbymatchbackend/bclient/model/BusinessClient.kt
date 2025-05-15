@@ -1,7 +1,5 @@
 package com.github.kkkubakkk.hobbymatchbackend.bclient.model
 
-import com.github.kkkubakkk.hobbymatchbackend.bclient.dto.BusinessClientDTO
-import com.github.kkkubakkk.hobbymatchbackend.venue.dto.toInfoDTO
 import com.github.kkkubakkk.hobbymatchbackend.venue.model.Venue
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
@@ -20,10 +18,12 @@ data class BusinessClient(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", updatable = false, nullable = false)
     val id: Long = 0,
-    @Column(name = "name", nullable = false, columnDefinition = "NVARCHAR(100)")
+    @Column(name = "name", updatable = true, nullable = false, columnDefinition = "NVARCHAR(100)")
     var name: String,
-    @Column(name = "email", nullable = false, unique = true, columnDefinition = "VARCHAR(320)")
+    @Column(name = "email", updatable = true, nullable = false, unique = true, columnDefinition = "VARCHAR(320)")
     var email: String,
+    @Column(name = "taxId", updatable = true, nullable = true, unique = true)
+    var taxId: String,
     @OneToMany(
         mappedBy = "owner",
         cascade = [CascadeType.ALL],
@@ -31,12 +31,4 @@ data class BusinessClient(
         fetch = FetchType.LAZY,
     )
     var venues: MutableSet<Venue> = mutableSetOf(),
-) {
-    fun toDTO(): BusinessClientDTO =
-        BusinessClientDTO(
-            id = this.id,
-            name = this.name,
-            email = this.email,
-            venues = this.venues.map { it.toInfoDTO() },
-        )
-}
+)

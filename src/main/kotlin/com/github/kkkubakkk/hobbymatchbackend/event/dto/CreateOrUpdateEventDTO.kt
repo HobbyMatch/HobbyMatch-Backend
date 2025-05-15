@@ -6,11 +6,11 @@ import com.github.kkkubakkk.hobbymatchbackend.location.dto.LocationDTO
 data class CreateOrUpdateEventDTO(
     val title: String,
     val description: String,
-    val location: LocationDTO,
     val startTime: String,
     val endTime: String,
-    val hobbies: List<HobbyDTO>,
+    val location: LocationDTO,
     val price: Double,
     val minUsers: Int,
     val maxUsers: Int,
+    val hobbies: List<HobbyDTO>,
 )

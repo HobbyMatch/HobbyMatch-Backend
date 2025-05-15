@@ -5,6 +5,8 @@ import com.github.kkkubakkk.hobbymatchbackend.event.dto.EventDTO
 import com.github.kkkubakkk.hobbymatchbackend.event.dto.toDTO
 import com.github.kkkubakkk.hobbymatchbackend.event.model.Event
 import com.github.kkkubakkk.hobbymatchbackend.event.repository.EventRepository
+import com.github.kkkubakkk.hobbymatchbackend.exception.NoAccessException
+import com.github.kkkubakkk.hobbymatchbackend.exception.RecordNotFoundException
 import com.github.kkkubakkk.hobbymatchbackend.hobby.repository.HobbyRepository
 import com.github.kkkubakkk.hobbymatchbackend.location.model.Location
 import com.github.kkkubakkk.hobbymatchbackend.user.repository.UserRepository
@@ -53,113 +55,117 @@ class EventService(
 
     fun getAllEvents(): List<EventDTO> = eventRepository.findAll().map { it.toDTO() }
 
-    fun getEvent(eventId: Long): EventDTO {
+    fun getEvent(eventId: Long): Event {
         val event = eventRepository.findById(eventId)
-        if (event.isPresent) {
-            return event.get().toDTO()
-        } else {
-            throw RuntimeException("Event with id $eventId does not exist")
+        if (event.isEmpty) {
+            throw RecordNotFoundException("Event with id $eventId not found")
         }
+        return event.get()
     }
 
     @Transactional
     fun updateEvent(
         id: Long,
+        authUserId: Long,
         createOrUpdateEventDTO: CreateOrUpdateEventDTO,
     ): EventDTO {
-        val event = eventRepository.findById(id)
-        require(event.isPresent) { "Event with id $id not found" }
-
-        val eventEntity = event.get()
-        eventEntity.title = createOrUpdateEventDTO.title
-        eventEntity.description = createOrUpdateEventDTO.description
-        eventEntity.location =
+        val event = getEvent(id)
+        verifyOrganizerAccess(event.organizer.id, authUserId)
+        event.title = createOrUpdateEventDTO.title
+        event.description = createOrUpdateEventDTO.description
+        event.location =
             Location(
                 longitude = createOrUpdateEventDTO.location.longitude,
                 latitude = createOrUpdateEventDTO.location.latitude,
             )
-        eventEntity.startTime = LocalDateTime.parse(createOrUpdateEventDTO.startTime)
-        eventEntity.endTime = LocalDateTime.parse(createOrUpdateEventDTO.endTime)
-        eventEntity.price = createOrUpdateEventDTO.price
-        eventEntity.minUsers = createOrUpdateEventDTO.minUsers
-        eventEntity.maxUsers = createOrUpdateEventDTO.maxUsers
+        event.startTime = LocalDateTime.parse(createOrUpdateEventDTO.startTime)
+        event.endTime = LocalDateTime.parse(createOrUpdateEventDTO.endTime)
+        event.price = createOrUpdateEventDTO.price
+        event.minUsers = createOrUpdateEventDTO.minUsers
+        event.maxUsers = createOrUpdateEventDTO.maxUsers
 
         // Update hobbies
         val newHobbies = hobbyRepository.findAllByNameIn(createOrUpdateEventDTO.hobbies.map { it.name })
 
         // Remove event from old hobbies that aren't in the new set
-        val hobbiesToRemove = eventEntity.hobbies.filter { !newHobbies.contains(it) }
+        val hobbiesToRemove = event.hobbies.filter { !newHobbies.contains(it) }
         for (hobby in hobbiesToRemove) {
-            hobby.events.remove(eventEntity)
+            hobby.events.remove(event)
         }
 
         // Add event to new hobbies
-        eventEntity.hobbies.clear()
-        eventEntity.hobbies.addAll(newHobbies)
+        event.hobbies.clear()
+        event.hobbies.addAll(newHobbies)
 
         for (hobby in newHobbies) {
-            if (!hobby.events.contains(eventEntity)) {
-                hobby.events.add(eventEntity)
+            if (!hobby.events.contains(event)) {
+                hobby.events.add(event)
             }
         }
 
-        return eventRepository.save(eventEntity).toDTO()
+        return eventRepository.save(event).toDTO()
     }
 
     @Transactional
-    fun deleteEvent(id: Long) {
-        val event = eventRepository.findById(id)
-        require(event.isPresent) { "Event with id $id not found" }
-
-        val eventEntity = event.get()
-
+    fun deleteEvent(
+        id: Long,
+        authUserId: Long,
+    ) {
+        val event = getEvent(id)
+        val organizerId = event.organizer.id
+        verifyOrganizerAccess(authUserId, organizerId)
         // Remove from participants
-        eventEntity.participants.forEach {
-            it.participatedEvents.remove(eventEntity)
+        event.participants.forEach {
+            it.participatedEvents.remove(event)
         }
         // Remove from hobbies
-        eventEntity.hobbies.forEach {
-            it.events.remove(eventEntity)
+        event.hobbies.forEach {
+            it.events.remove(event)
         }
         // Remove from organizer
-        eventEntity.organizer.organizedEvents.remove(eventEntity)
+        event.organizer.organizedEvents.remove(event)
         // Delete the activity
-        eventRepository.delete(eventEntity)
+        eventRepository.delete(event)
     }
 
     fun enrollInEvent(
         eventId: Long,
         participantId: Long,
     ): EventDTO {
-        val event = eventRepository.findById(eventId)
-        require(event.isPresent) { "Event with id $eventId not found" }
-
+        val event = getEvent(eventId)
         val participant = userRepository.findById(participantId).get()
 
-        event.get().participants.add(participant)
-        participant.participatedEvents.add(event.get())
+        event.participants.add(participant)
+        participant.participatedEvents.add(event)
 
-        eventRepository.save(event.get())
         userRepository.save(participant)
 
-        return event.get().toDTO()
+        return eventRepository.save(event).toDTO()
     }
 
     fun withdrawFromEvent(
         eventId: Long,
         participantId: Long,
     ): EventDTO {
-        val event = eventRepository.findById(eventId)
-        require(event.isPresent) { "Event with id $eventId not found" }
+        val event = getEvent(eventId)
 
         val participant = userRepository.findById(participantId).get()
+        event.participants.remove(participant)
+        participant.participatedEvents.remove(event)
 
-        event.get().participants.remove(participant)
-        participant.participatedEvents.remove(event.get())
-
-        eventRepository.save(event.get())
         userRepository.save(participant)
 
-        return event.get().toDTO()
+        return eventRepository.save(event).toDTO()
+    }
+
+    fun verifyOrganizerAccess(
+        organizerId: Long,
+        authUserId: Long,
+    ) {
+        if (organizerId != authUserId) {
+            throw NoAccessException(
+                "Access denied for user with id $authUserId, expected the organizer with id $organizerId",
+            )
+        }
     }
 }

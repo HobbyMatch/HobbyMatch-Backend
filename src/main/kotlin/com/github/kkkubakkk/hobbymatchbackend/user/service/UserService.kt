@@ -1,5 +1,7 @@
 package com.github.kkkubakkk.hobbymatchbackend.user.service
 
+import com.github.kkkubakkk.hobbymatchbackend.exception.NoAccessException
+import com.github.kkkubakkk.hobbymatchbackend.exception.RecordNotFoundException
 import com.github.kkkubakkk.hobbymatchbackend.hobby.repository.HobbyRepository
 import com.github.kkkubakkk.hobbymatchbackend.user.dto.UpdateUserDTO
 import com.github.kkkubakkk.hobbymatchbackend.user.model.User
@@ -31,7 +33,9 @@ class UserService(
 
     fun getUser(id: Long): User {
         val userOptional = userRepository.findById(id)
-        require(userOptional.isPresent) { "User not found" }
+        if (userOptional.isEmpty) {
+            throw RecordNotFoundException("User not found")
+        }
         return userOptional.get()
     }
 
@@ -39,10 +43,7 @@ class UserService(
         id: Long,
         userDto: UpdateUserDTO,
     ): User {
-        val userOptional = userRepository.findById(id)
-        require(userOptional.isPresent) { "User not found" }
-
-        val user = userOptional.get()
+        val user = getUser(id)
         user.name = userDto.name
         user.email = userDto.email
         user.hobbies.clear()
@@ -55,5 +56,16 @@ class UserService(
                 }.toMutableSet()
 
         return userRepository.save(user)
+    }
+
+    fun verifyUserAccess(
+        userId: Long,
+        authUserId: Long,
+    ) {
+        if (authUserId != userId) {
+            throw NoAccessException(
+                "\"User ID mismatch: Authenticated user ID: $authUserId, Requested user ID: $userId\"",
+            )
+        }
     }
 }
