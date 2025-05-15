@@ -1,5 +1,6 @@
 package com.github.kkkubakkk.hobbymatchbackend.security.component
 
+import com.github.kkkubakkk.hobbymatchbackend.exception.NoAccessException
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
@@ -135,10 +136,10 @@ class JwtUtils {
         fun getAuthenticatedUserId(): Long {
             val authentication =
                 SecurityContextHolder.getContext().authentication
-                    ?: throw SecurityException("Access denied")
+                    ?: throw NoAccessException("Access denied")
 
             return authentication.principal as? Long
-                ?: throw SecurityException("Access denied")
+                ?: throw NoAccessException("Access denied")
         }
     }
 }

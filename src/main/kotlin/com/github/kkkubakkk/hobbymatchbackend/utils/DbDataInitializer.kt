@@ -107,15 +107,22 @@ class DbDataInitializer(
             BusinessClient(
                 name = "John Doe",
                 email = "john_doe@example.com",
+                taxId = "123321",
                 venues = mutableSetOf(),
             )
         val venue1 =
             Venue(
+                name = "Football field",
+                description = "4x7 meters outdoor grass field",
+                address = "Nowowiejska St. 13",
                 location = location1,
                 owner = bclient1,
             )
         val venue2 =
             Venue(
+                name = "Swimming pool",
+                description = "3x21 meters indoor pool",
+                address = "Nowogrodzka St. 13B",
                 location = location2,
                 owner = bclient1,
             )
@@ -129,15 +136,22 @@ class DbDataInitializer(
             BusinessClient(
                 name = "John Doe",
                 email = "john_doe@example.com",
+                taxId = "12321231",
                 venues = mutableSetOf(),
             )
         val venue12 =
             Venue(
+                name = "Football field",
+                description = "4x7 meters outdoor grass field",
+                address = "Nowowiejska St. 13",
                 location = location12,
                 owner = bclient12,
             )
         val venue22 =
             Venue(
+                name = "Swimming pool",
+                description = "3x21 meters indoor pool",
+                address = "Nowogrodzka St. 13B",
                 location = location22,
                 owner = bclient12,
             )

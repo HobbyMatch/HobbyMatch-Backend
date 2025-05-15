@@ -8,6 +8,7 @@ data class BusinessClientDTO(
     val id: Long,
     val name: String,
     val email: String,
+    val taxId: String,
     val venues: List<VenueInfoDTO>,
 )
 
@@ -16,5 +17,6 @@ fun BusinessClient.toDTO(): BusinessClientDTO =
         id = this.id,
         name = this.name,
         email = this.email,
+        taxId = this.taxId,
         venues = this.venues.map { it.toInfoDTO() },
     )

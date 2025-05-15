@@ -1,10 +1,8 @@
 package com.github.kkkubakkk.hobbymatchbackend.venue.model
 
 import com.github.kkkubakkk.hobbymatchbackend.bclient.model.BusinessClient
-import com.github.kkkubakkk.hobbymatchbackend.event.dto.toDTO
 import com.github.kkkubakkk.hobbymatchbackend.event.model.Event
 import com.github.kkkubakkk.hobbymatchbackend.location.model.Location
-import com.github.kkkubakkk.hobbymatchbackend.venue.dto.VenueDTO
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Embedded
@@ -25,26 +23,22 @@ data class Venue(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", updatable = false, nullable = false)
     val id: Long = 0,
+    @Column(name = "name", updatable = true, nullable = false)
+    var name: String,
+    @Column(name = "description", updatable = true, nullable = false)
+    var description: String,
+    @Column(name = "address", updatable = false, nullable = false)
+    val address: String,
     @Embedded
     var location: Location,
-    @Column(name = "datetime", nullable = false, columnDefinition = "DATETIME")
+    @ManyToOne
+    @JoinColumn(name = "owner_id", nullable = false)
+    val owner: BusinessClient,
     @OneToMany(
         mappedBy = "host",
         cascade = [CascadeType.ALL],
         orphanRemoval = true,
         fetch = FetchType.LAZY,
     )
-    var hostedEvents: MutableSet<Event> = mutableSetOf(),
-    @ManyToOne
-    @JoinColumn(name = "owner_id", nullable = false)
-    val owner: BusinessClient,
-) {
-    fun toDTO(): VenueDTO =
-        VenueDTO(
-            id = this.id,
-            location = this.location,
-            hostedActivities = this.hostedEvents.map { it.toDTO() },
-            ownerId = this.owner.id,
-//            owner = owner.toDTO(),
-        )
-}
+    var events: MutableSet<Event> = mutableSetOf(),
+)
