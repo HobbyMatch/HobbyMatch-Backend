@@ -2,18 +2,16 @@ package com.github.kkkubakkk.hobbymatchbackend.bclient.service
 
 import com.github.kkkubakkk.hobbymatchbackend.bclient.dto.BusinessClientDTO
 import com.github.kkkubakkk.hobbymatchbackend.bclient.dto.UpdateClientDTO
+import com.github.kkkubakkk.hobbymatchbackend.bclient.dto.toDTO
 import com.github.kkkubakkk.hobbymatchbackend.bclient.model.BusinessClient
 import com.github.kkkubakkk.hobbymatchbackend.bclient.repository.BusinessClientRepository
-import com.github.kkkubakkk.hobbymatchbackend.venue.dto.CreateVenueDTO
-import com.github.kkkubakkk.hobbymatchbackend.venue.dto.VenueDTO
-import com.github.kkkubakkk.hobbymatchbackend.venue.model.Venue
-import com.github.kkkubakkk.hobbymatchbackend.venue.repository.VenueRepository
+import com.github.kkkubakkk.hobbymatchbackend.exception.CustomRuntimeException
+import com.github.kkkubakkk.hobbymatchbackend.exception.RecordNotFoundException
 import org.springframework.stereotype.Service
 
 @Service
 class BusinessClientService(
     private val businessClientRepository: BusinessClientRepository,
-    private val venueRepository: VenueRepository,
 ) {
     fun createBusinessClient(
         email: String,
@@ -28,57 +26,48 @@ class BusinessClientService(
             BusinessClient(
                 name = name,
                 email = email,
+                taxId = "",
             )
 
         return businessClientRepository.save(businessClient)
     }
 
-    fun getVenueById(id: Long): VenueDTO {
-        val venueOptional = venueRepository.findById(id)
-        require(venueOptional.isPresent) { "Venue not found" }
-        return venueOptional.get().toDTO()
-    }
-
-    fun addVenue(createVenueDTO: CreateVenueDTO): VenueDTO {
-        val clientOptional = businessClientRepository.findById(createVenueDTO.ownerId)
-        require(clientOptional.isPresent) { "Owner not found" }
-        val client = clientOptional.get()
-        val addedVenue =
-            Venue(
-                location = createVenueDTO.location,
-                owner = client,
-                hostedEvents = mutableSetOf(),
-            )
-        client.venues.add(addedVenue)
-        venueRepository.save(addedVenue)
-        return addedVenue.toDTO()
-    }
-
     fun getMe(id: Long): BusinessClient {
         val bClient = businessClientRepository.findById(id)
-        require(bClient.isPresent) { "Not found business client: $id" }
+        if (bClient.isEmpty) {
+            throw RecordNotFoundException("Not found business client: $id")
+        }
         return bClient.get()
     }
 
-    fun getClientById(id: Long): BusinessClientDTO {
+    fun getClient(id: Long): BusinessClient {
         val clientOptional = businessClientRepository.findById(id)
-        require(clientOptional.isPresent) { "Business client not found" }
-        return clientOptional.get().toDTO()
+        if (clientOptional.isEmpty) {
+            throw RecordNotFoundException("Business client not found")
+        }
+        return clientOptional.get()
     }
 
+    fun saveClient(client: BusinessClient) {
+        businessClientRepository.save(client)
+    }
+
+    // td: verify if needs fixing!!!
     fun updateClientById(
         id: Long,
         updateClientDTO: UpdateClientDTO,
     ): BusinessClientDTO {
-        val clientOptional = businessClientRepository.findById(id)
-        require(clientOptional.isPresent) { "Business client not found" }
-        val client = clientOptional.get()
-//        val newVenues = venueRepository.findAllByIdIn(updateClientDTO.venues.map { it.id })
-//        require(newVenues.size == updateClientDTO.venues.size){"Some specified venues do not exist"}
-//        updateVenues(client, newVenues)
+        val client = getClient(id)
+        val email = updateClientDTO.email
+        val existingClient = businessClientRepository.findByEmail(email)
+        if (existingClient.isPresent) {
+            throw CustomRuntimeException(
+                "Cannot update client with id $id, client with email '$email' is already present",
+            )
+        }
         client.name = updateClientDTO.name
-        client.email = updateClientDTO.email
-        businessClientRepository.save(client)
-        return client.toDTO()
+        client.email = email
+        client.taxId = updateClientDTO.taxId
+        return businessClientRepository.save(client).toDTO()
     }
 }
