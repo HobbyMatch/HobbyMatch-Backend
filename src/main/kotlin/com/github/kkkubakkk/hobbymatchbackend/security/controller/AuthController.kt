@@ -82,6 +82,7 @@ class AuthController(
 
                 val firstName = payload["given_name"] as? String ?: ""
                 val lastName = payload["family_name"] as? String ?: ""
+                val taxId = "" // TD: CHANGE!!!!
                 val name = "$firstName $lastName"
 
                 var loginDto = LoginDTO()
@@ -89,7 +90,7 @@ class AuthController(
                     val user = userService.createUser(email, name)
                     loginDto = user.toLoginDTO()
                 } else {
-                    val bClient = businessClientService.createBusinessClient(email, name)
+                    val bClient = businessClientService.createBusinessClient(email, name, taxId)
                     loginDto = bClient.toLoginDTO()
                 }
 

@@ -16,6 +16,7 @@ class BusinessClientService(
     fun createBusinessClient(
         email: String,
         name: String,
+        taxId: String,
     ): BusinessClient {
         val businessClientOptional = businessClientRepository.findByEmail(email)
         if (businessClientOptional.isPresent) {
@@ -26,24 +27,16 @@ class BusinessClientService(
             BusinessClient(
                 name = name,
                 email = email,
-                taxId = "",
+                taxId = taxId,
             )
 
         return businessClientRepository.save(businessClient)
     }
 
-    fun getMe(id: Long): BusinessClient {
-        val bClient = businessClientRepository.findById(id)
-        if (bClient.isEmpty) {
-            throw RecordNotFoundException("Not found business client: $id")
-        }
-        return bClient.get()
-    }
-
     fun getClient(id: Long): BusinessClient {
         val clientOptional = businessClientRepository.findById(id)
         if (clientOptional.isEmpty) {
-            throw RecordNotFoundException("Business client not found")
+            throw RecordNotFoundException("Business client with $id not found")
         }
         return clientOptional.get()
     }
