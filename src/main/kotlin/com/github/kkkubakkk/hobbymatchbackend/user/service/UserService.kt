@@ -51,7 +51,9 @@ class UserService(
             userDto.hobbies
                 .map { hobbyDto ->
                     val hobbyOptional = hobbyRepository.findByName(hobbyDto.name)
-                    require(hobbyOptional.isPresent) { "Hobby not found" }
+                    if (hobbyOptional.isEmpty) {
+                        throw RecordNotFoundException("Hobby not found")
+                    }
                     hobbyOptional.get()
                 }.toMutableSet()
 
