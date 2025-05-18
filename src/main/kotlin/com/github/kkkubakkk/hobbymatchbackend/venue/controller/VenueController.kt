@@ -2,9 +2,10 @@ package com.github.kkkubakkk.hobbymatchbackend.venue.controller
 
 import com.github.kkkubakkk.hobbymatchbackend.security.component.JwtUtils.Companion.getAuthenticatedUserId
 import com.github.kkkubakkk.hobbymatchbackend.venue.dto.CreateVenueDTO
+import com.github.kkkubakkk.hobbymatchbackend.venue.dto.GetVenueDTO
 import com.github.kkkubakkk.hobbymatchbackend.venue.dto.UpdateVenueDTO
 import com.github.kkkubakkk.hobbymatchbackend.venue.dto.VenueDTO
-import com.github.kkkubakkk.hobbymatchbackend.venue.dto.toDTO
+import com.github.kkkubakkk.hobbymatchbackend.venue.dto.toGetDTO
 import com.github.kkkubakkk.hobbymatchbackend.venue.service.VenueService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -32,7 +33,7 @@ class VenueController(
     @GetMapping("/{venueId}")
     fun getVenue(
         @PathVariable venueId: Long,
-    ): ResponseEntity<VenueDTO> = ResponseEntity.ok(venueService.getVenue(venueId).toDTO())
+    ): ResponseEntity<GetVenueDTO> = ResponseEntity.ok(venueService.getVenue(venueId).toGetDTO())
 
     @GetMapping
     fun getAllVenues(): ResponseEntity<List<VenueDTO>> = ResponseEntity.ok(venueService.getAllVenues())
