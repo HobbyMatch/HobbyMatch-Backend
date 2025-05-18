@@ -29,7 +29,7 @@ class BusinessClientController(
     @GetMapping("/me")
     fun getMe(): ResponseEntity<BusinessClientDTO> {
         val id = getAuthenticatedUserId()
-        return ResponseEntity.ok(clientService.getMe(id).toDTO())
+        return ResponseEntity.ok(clientService.getClient(id).toDTO())
 //        try {
 //            logger.info("Fetching business client information")
 //            val id = getAuthenticatedUserId()
