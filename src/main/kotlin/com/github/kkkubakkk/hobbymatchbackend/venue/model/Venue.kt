@@ -3,11 +3,9 @@ package com.github.kkkubakkk.hobbymatchbackend.venue.model
 import com.github.kkkubakkk.hobbymatchbackend.bclient.model.BusinessClient
 import com.github.kkkubakkk.hobbymatchbackend.event.model.Event
 import com.github.kkkubakkk.hobbymatchbackend.location.model.Location
-import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
-import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
@@ -34,11 +32,17 @@ data class Venue(
     @ManyToOne
     @JoinColumn(name = "owner_id", nullable = false)
     val owner: BusinessClient,
-    @OneToMany(
-        mappedBy = "host",
-        cascade = [CascadeType.ALL],
-        orphanRemoval = true,
-        fetch = FetchType.LAZY,
-    )
+    @OneToMany(mappedBy = "host")
     var events: MutableSet<Event> = mutableSetOf(),
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        other as Venue
+        return id == other.id
+    }
+
+    override fun hashCode(): Int {
+        return id.hashCode()
+    }
+}
