@@ -46,6 +46,9 @@ class UserService(
         val user = getUser(id)
         user.name = userDto.name
         user.email = userDto.email
+        user.hobbies.forEach { hobby ->
+            hobby.users.remove(user)
+        }
         user.hobbies.clear()
         user.hobbies =
             userDto.hobbies
@@ -56,6 +59,9 @@ class UserService(
                     }
                     hobbyOptional.get()
                 }.toMutableSet()
+        user.hobbies.forEach { hobby ->
+            hobby.users.add(user)
+        }
 
         return userRepository.save(user)
     }

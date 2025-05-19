@@ -44,4 +44,12 @@ data class User(
     var participatedEvents: MutableSet<Event> = mutableSetOf(),
     @Column(name = "is_active", nullable = false)
     var isActive: Boolean = true,
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is User) return false
+        return id == other.id
+    }
+
+    override fun hashCode(): Int = id.hashCode()
+}
