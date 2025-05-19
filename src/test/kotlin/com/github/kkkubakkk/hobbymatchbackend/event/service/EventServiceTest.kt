@@ -182,7 +182,7 @@ class EventServiceTest {
             price = 20.0,
             minUsers = 5,
             maxUsers = 20,
-            host = venue,
+            venue = venue,
             hobbies = mutableSetOf(hobby),
             participants = mutableSetOf(),
         )
