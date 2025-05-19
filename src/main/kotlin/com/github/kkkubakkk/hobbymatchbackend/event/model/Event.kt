@@ -37,7 +37,7 @@ data class Event(
     var participants: MutableSet<User> = mutableSetOf(),
     @ManyToOne
     @JoinColumn(name = "host_id", nullable = true)
-    val host: Venue? = null,
+    val venue: Venue? = null,
     @Column(name = "title", nullable = false, columnDefinition = "NVARCHAR(100)")
     var title: String,
     @Column(name = "description", nullable = true, columnDefinition = "NVARCHAR(MAX)")

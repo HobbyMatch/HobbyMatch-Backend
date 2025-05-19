@@ -45,6 +45,7 @@ class UserController(
 //        }
     }
 
+    // TODO: cannot update email to existing email of other user
     @PutMapping("/{userId}")
     fun updateUser(
         @PathVariable userId: Long,
