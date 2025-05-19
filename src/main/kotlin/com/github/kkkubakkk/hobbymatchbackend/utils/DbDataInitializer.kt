@@ -10,6 +10,7 @@ import com.github.kkkubakkk.hobbymatchbackend.user.model.User
 import com.github.kkkubakkk.hobbymatchbackend.user.repository.UserRepository
 import com.github.kkkubakkk.hobbymatchbackend.venue.model.Venue
 import jakarta.transaction.Transactional
+import org.slf4j.LoggerFactory
 import org.springframework.boot.CommandLineRunner
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
@@ -20,8 +21,12 @@ class DbDataInitializer(
     private val hobbyRepository: HobbyRepository,
     private val eventRepository: EventRepository,
 ) : CommandLineRunner {
+    private val logger = LoggerFactory.getLogger(DbDataInitializer::class.java)
+
     @Transactional
     override fun run(vararg args: String?) {
+        logger.info("Starting database initialization...")
+
         if (hobbyRepository.count() == 0L) {
             hobbyRepository.saveAll(createHobbies())
         }
@@ -31,6 +36,8 @@ class DbDataInitializer(
         if (eventRepository.count() == 0L) {
             eventRepository.saveAll(createEvents())
         }
+
+        logger.info("Database initialization completed successfully")
     }
 
     private fun createHobbies(): List<Hobby> =

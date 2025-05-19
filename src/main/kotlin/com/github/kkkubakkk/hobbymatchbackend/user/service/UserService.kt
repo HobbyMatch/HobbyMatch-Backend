@@ -1,5 +1,6 @@
 package com.github.kkkubakkk.hobbymatchbackend.user.service
 
+import com.github.kkkubakkk.hobbymatchbackend.exception.CustomRuntimeException
 import com.github.kkkubakkk.hobbymatchbackend.exception.NoAccessException
 import com.github.kkkubakkk.hobbymatchbackend.exception.RecordNotFoundException
 import com.github.kkkubakkk.hobbymatchbackend.hobby.repository.HobbyRepository
@@ -44,6 +45,14 @@ class UserService(
         userDto: UpdateUserDTO,
     ): User {
         val user = getUser(id)
+
+        val existingUserWithEmail = userRepository.findByEmail(userDto.email)
+        if (existingUserWithEmail.isPresent && existingUserWithEmail.get().id != user.id) {
+            throw CustomRuntimeException(
+                "Cannot update user with id ${user.id}, user with email '${userDto.email}' is already present",
+            )
+        }
+
         user.name = userDto.name
         user.email = userDto.email
         user.hobbies.forEach { hobby ->
