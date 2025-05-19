@@ -23,4 +23,12 @@ data class Hobby(
     var users: MutableSet<User> = mutableSetOf(),
     @ManyToMany(mappedBy = "hobbies")
     var events: MutableSet<Event> = mutableSetOf(),
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Hobby) return false
+        return id == other.id
+    }
+
+    override fun hashCode(): Int = id.hashCode()
+}
