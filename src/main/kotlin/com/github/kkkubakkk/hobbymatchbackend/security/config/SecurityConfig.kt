@@ -27,7 +27,7 @@ class SecurityConfig(
 //                    .anyRequest()
 //                    .permitAll()
                     // PRODUCTION: Set up authentication for the endpoints
-                    .requestMatchers("/api/v1/auth/**")
+                    .requestMatchers("/api/v1/auth/**", "/api/v1/hobbies/**")
                     .permitAll()
                     .requestMatchers("/api/v1/users/**")
                     .hasAnyRole("USER")
