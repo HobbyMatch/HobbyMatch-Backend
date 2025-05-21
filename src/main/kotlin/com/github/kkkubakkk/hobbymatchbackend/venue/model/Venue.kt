@@ -32,7 +32,7 @@ data class Venue(
     @ManyToOne
     @JoinColumn(name = "owner_id", nullable = false)
     val owner: BusinessClient,
-    @OneToMany(mappedBy = "host")
+    @OneToMany(mappedBy = "venue")
     var events: MutableSet<Event> = mutableSetOf(),
 ) {
     override fun equals(other: Any?): Boolean {
@@ -42,7 +42,5 @@ data class Venue(
         return id == other.id
     }
 
-    override fun hashCode(): Int {
-        return id.hashCode()
-    }
+    override fun hashCode(): Int = id.hashCode()
 }
