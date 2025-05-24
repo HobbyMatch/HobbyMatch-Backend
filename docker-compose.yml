@@ -1,25 +1,23 @@
 services:
   db:
-    image: mcr.microsoft.com/azure-sql-edge:latest
+    image: mysql:8.0
     platform: linux/amd64
     environment:
-      - ACCEPT_EULA=Y
-      - SA_PASSWORD=${DB_PASSWORD}
-      - MSSQL_PID=Developer
-      - MSSQL_TCP_PORT=1433
-      - MSSQL_AGENT_ENABLED=false
-      - MSSQL_RPC_PORT=1431
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DATABASE=hobbymatch
+      - MYSQL_USER=admin
+      - MYSQL_PASSWORD=${DB_PASSWORD}
     ports:
-      - "1433:1433"
+      - "3306:3306"
     volumes:
-      - mssql_data:/var/opt/mssql
-      - ./mssql.conf:/var/opt/mssql/mssql.conf
+      - mysql_data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password
     healthcheck:
-      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "${DB_PASSWORD}" -Q "SELECT 1" || exit 1
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "admin", "-p${DB_PASSWORD}" ]
       interval: 10s
       timeout: 3s
       retries: 10
-      start_period: 10s
+      start_period: 30s
 
   backend:
     build: .
@@ -27,6 +25,9 @@ services:
       - "8080:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/hobbymatch?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
     env_file:
       - .env
     depends_on:
@@ -34,4 +35,4 @@ services:
         condition: service_healthy
 
 volumes:
-  mssql_data:
+  mysql_data:
