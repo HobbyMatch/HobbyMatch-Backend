@@ -46,12 +46,3 @@
     --capabilities CAPABILITY_NAMED_IAM \
     --parameter-overrides file://parameters.json
    ```
-   
-```bash
-aws cloudformation create-stack \
-  --stack-name hobbymatch-prod \
-  --template-body file://hobbymatch-infrastructure.yml \
-  --parameters file://parameters.json \
-  --capabilities CAPABILITY_IAM \
-  --region us-east-1
-```
