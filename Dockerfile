@@ -29,6 +29,9 @@ VOLUME /tmp
 # Copy the jar from the build stage
 COPY --from=build /workspace/app/build/libs/*.jar app.jar
 
+# Expose port
+EXPOSE 8080
+
 # Set entrypoint
 ENTRYPOINT ["java", "-jar", "/app.jar"]
 
