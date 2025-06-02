@@ -1,6 +1,7 @@
 package com.github.kkkubakkk.hobbymatchbackend.security.component
 
 import com.github.kkkubakkk.hobbymatchbackend.exception.NoAccessException
+import com.github.kkkubakkk.hobbymatchbackend.user.service.UserService
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
@@ -11,8 +12,11 @@ import org.springframework.stereotype.Component
 import java.util.Date
 import kotlin.collections.HashMap
 
+// TODO: use refresh token to get new access token
 @Component
-class JwtUtils {
+class JwtUtils(
+    private val userService: UserService,
+) {
     @Value("\${jwt.secret}")
     private lateinit var jwtSecret: String
 
@@ -38,6 +42,8 @@ class JwtUtils {
         expiration: Long,
         isRefreshToken: Boolean = false,
     ): String {
+        val user = userService.getUser(userId)
+
         val claims = HashMap<String, Any>()
         claims["userId"] = userId
         claims["role"] = role
@@ -46,6 +52,16 @@ class JwtUtils {
         } else {
             claims["tokenType"] = "access"
         }
+
+        // For compatibility with other groups frontend
+        claims["nameidentifier"] = userId
+        claims["sid"] = userId
+        claims["emailaddress"] = user.email
+        claims["name"] = user.name
+//        claims["role"] = role // Duplicate
+        claims["exp"] = expiration
+        claims["iss"] = "HobbyMatchBackend"
+        claims["aud"] = "HobbyMatchFrontend"
 
         return Jwts
             .builder()

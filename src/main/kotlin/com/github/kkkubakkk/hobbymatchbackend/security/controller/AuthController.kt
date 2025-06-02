@@ -2,11 +2,8 @@ package com.github.kkkubakkk.hobbymatchbackend.security.controller
 
 import com.github.kkkubakkk.hobbymatchbackend.bclient.service.BusinessClientService
 import com.github.kkkubakkk.hobbymatchbackend.security.component.JwtUtils
-import com.github.kkkubakkk.hobbymatchbackend.security.component.JwtUtils.Companion.getAuthenticatedUserId
 import com.github.kkkubakkk.hobbymatchbackend.security.dto.LoginDTO
 import com.github.kkkubakkk.hobbymatchbackend.security.dto.toLoginDTO
-import com.github.kkkubakkk.hobbymatchbackend.user.dto.UserDTO
-import com.github.kkkubakkk.hobbymatchbackend.user.dto.toDTO
 import com.github.kkkubakkk.hobbymatchbackend.user.service.UserService
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier
 import com.google.api.client.http.javanet.NetHttpTransport
@@ -15,7 +12,6 @@ import io.jsonwebtoken.io.IOException
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -31,18 +27,6 @@ class AuthController(
 ) {
     @Value("\${spring.security.oauth2.client.registration.google.client-id}")
     private lateinit var googleClientId: String
-
-    @GetMapping("/me")
-    fun getCurrentUser(): ResponseEntity<UserDTO> {
-        try {
-            val authUserId = getAuthenticatedUserId()
-            val user = userService.getUser(authUserId)
-            return ResponseEntity.ok(user.toDTO())
-        } catch (e: Exception) {
-            println(e.message)
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
-        }
-    }
 
     @PostMapping("/refresh")
     fun refreshToken(
@@ -89,7 +73,7 @@ class AuthController(
                 if (request.role == "USER") {
                     val user = userService.createUser(email, name)
                     loginDto = user.toLoginDTO()
-                } else {
+                } else { // "BUSINESS"
                     val bClient = businessClientService.createBusinessClient(email, name, taxId)
                     loginDto = bClient.toLoginDTO()
                 }

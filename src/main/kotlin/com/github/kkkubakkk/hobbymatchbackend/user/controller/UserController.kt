@@ -6,6 +6,7 @@ import com.github.kkkubakkk.hobbymatchbackend.user.dto.UserDTO
 import com.github.kkkubakkk.hobbymatchbackend.user.dto.toDTO
 import com.github.kkkubakkk.hobbymatchbackend.user.service.UserService
 import org.slf4j.LoggerFactory
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -20,6 +21,18 @@ class UserController(
     private val userService: UserService,
 ) {
     private val logger = LoggerFactory.getLogger(UserController::class.java)
+
+    @GetMapping("/me")
+    fun getCurrentUser(): ResponseEntity<UserDTO> {
+        try {
+            val authUserId = getAuthenticatedUserId()
+            val user = userService.getUser(authUserId)
+            return ResponseEntity.ok(user.toDTO())
+        } catch (e: Exception) {
+            println(e.message)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
+        }
+    }
 
     @GetMapping("/{userId}")
     fun getUser(
