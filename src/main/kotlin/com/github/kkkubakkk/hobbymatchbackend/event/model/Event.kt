@@ -40,7 +40,7 @@ data class Event(
     val venue: Venue? = null,
     @Column(name = "title", nullable = false, columnDefinition = "NVARCHAR(100)")
     var title: String,
-    @Column(name = "description", nullable = true, columnDefinition = "NVARCHAR(MAX)")
+    @Column(name = "description", nullable = true, columnDefinition = "NVARCHAR(10000)")
     var description: String? = null,
     @Embedded
     var location: Location,
@@ -48,7 +48,7 @@ data class Event(
     var startTime: LocalDateTime,
     @Column(name = "endTime", nullable = false, columnDefinition = "DATETIME")
     var endTime: LocalDateTime,
-    @Column(name = "price", nullable = false, columnDefinition = "MONEY")
+    @Column(name = "price", nullable = false, columnDefinition = "DECIMAL(19,4)")
     var price: Double,
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
