@@ -5,7 +5,7 @@ import com.github.kkkubakkk.hobbymatchbackend.hobby.dto.toDTO
 import com.github.kkkubakkk.hobbymatchbackend.user.model.User
 
 data class UserDTO(
-    val id: Long,
+    val id: String,
     val name: String,
     val email: String,
     val hobbies: List<HobbyDTO>,
@@ -13,7 +13,7 @@ data class UserDTO(
 
 fun User.toDTO(): UserDTO =
     UserDTO(
-        id = this.id,
+        id = this.id.toString(),
         name = this.name,
         email = this.email,
         hobbies = this.hobbies.map { it.toDTO() },
